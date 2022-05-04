@@ -1,3 +1,5 @@
+import { array } from './array'
+
 export type PrimitiveType = 'number' | 'string' | 'boolean' | 'unknown'
 
 type PrimitiveTypeName = 'number' | 'string' | 'boolean' | 'unknown'
@@ -5,41 +7,44 @@ type ComplexTypeName = 'array' | 'set' | 'optional'
 
 export type TypeName = ComplexTypeName | PrimitiveTypeName
 
-interface PrimitiveIchorNode<TType extends PrimitiveType> {
-  typeName: PrimitiveTypeName
-  type: TType
+interface BaseNode<TypeName extends string> {
+  typeName: TypeName
 }
 
-interface ComplexIchorNode<TTypeName extends ComplexTypeName, TNode extends AnyIchorNode> {
-  typeName: TTypeName
-  type: TNode
+interface PrimitiveNode<Type extends string> extends BaseNode<Type> {
+  type: Type
 }
 
-type AnyObjectShape = { [key: string]: AnyIchorNode }
-
-interface ObjectIchorNode<TShape extends AnyObjectShape> {
-  typeName: 'object'
-  shape: TShape
+interface ComplexNode<TypeName extends string, Type extends AnyNode> extends BaseNode<TypeName> {
+  type: Type
 }
 
-type AnyPrimitiveIchorNode = PrimitiveIchorNode<PrimitiveType>
-type AnyComplexIchorNode = ComplexIchorNode<ComplexTypeName, AnyIchorNode>
-type AnyObjectIchorNode = ObjectIchorNode<AnyObjectShape>
-export type AnyIchorNode = AnyComplexIchorNode | AnyPrimitiveIchorNode | AnyObjectIchorNode
+type NumberNode = PrimitiveNode<'number'>
+type StringNode = PrimitiveNode<'string'>
+type BooleanNode = PrimitiveNode<'boolean'>
+type UnknownNode = PrimitiveNode<'unknown'>
 
-export const defineNode = <T extends AnyIchorNode>(node: T) => node
+type ArrayNode<Type extends AnyNode> = ComplexNode<'array', Type>
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+interface AnyArrayNode extends ArrayNode<AnyNode> {}
+
+type AnyObjectShape = { [key: string]: AnyNode }
+interface ObjectIchorNode<Shape extends AnyObjectShape> extends BaseNode<'object'> {
+  shape: Shape
+}
+type AnyObjectNode = ObjectIchorNode<AnyObjectShape>
+
+type AnyPrimitiveNode = NumberNode | StringNode | BooleanNode | UnknownNode
+
+export type AnyNode = AnyPrimitiveNode | AnyObjectNode | AnyArrayNode
+
+export const defineNode = <T extends AnyNode>(node: T) => node
 
 interface PrimitiveTypeMap {
   'number': number
   'string': string
   'boolean': boolean
   'unknown': unknown
-}
-
-interface ComplexTypeMap<TNode extends AnyComplexIchorNode> {
-  'array': Infer<TNode['type']>[]
-  'set': Set<Infer<TNode['type']>>
-  'optional': Infer<TNode['type']> | undefined
 }
 
 export type PickBy<T, V> = Pick<
@@ -54,7 +59,7 @@ export type PickBy<T, V> = Pick<
 type Simplify<T> = T extends number ? T
   : { [K in keyof T]: T[K] }
 
-type InferObject<TNode extends AnyObjectIchorNode> = Simplify<
+type InferObject<TNode extends AnyObjectNode> = Simplify<
   & {
     [Property in keyof TNode['shape'] as undefined extends Infer<TNode['shape'][Property]> ? never : Property]: Infer<
       TNode['shape'][Property]
@@ -67,7 +72,7 @@ type InferObject<TNode extends AnyObjectIchorNode> = Simplify<
   }
 >
 
-export type Infer<TNode extends AnyIchorNode> = TNode extends AnyPrimitiveIchorNode ? PrimitiveTypeMap[TNode['type']]
-  : TNode extends AnyComplexIchorNode ? ComplexTypeMap<TNode>[TNode['typeName']]
-  : TNode extends AnyObjectIchorNode ? InferObject<TNode>
+export type Infer<TNode extends AnyNode> = TNode extends AnyPrimitiveNode ? PrimitiveTypeMap[TNode['typeName']]
+  : TNode extends AnyObjectNode ? InferObject<TNode>
+  : TNode extends AnyArrayNode ? Infer<TNode['type']>[]
   : never

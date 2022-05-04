@@ -1,6 +1,6 @@
-import { AnyIchorNode, defineNode } from './types'
+import { AnyNode, defineNode } from './types'
 
-export const object = <TShape extends Record<string, AnyIchorNode>>(shape: TShape) => {
+export const object = <TShape extends Record<string, AnyNode>>(shape: TShape) => {
   return defineNode({
     typeName: 'object',
     shape,

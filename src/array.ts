@@ -1,6 +1,6 @@
-import { AnyIchorNode, defineNode } from './types'
+import { AnyNode, defineNode } from './types'
 
-export const array = <TNode extends AnyIchorNode>(type: TNode) => {
+export const array = <TNode extends AnyNode>(type: TNode) => {
   return defineNode({
     typeName: 'array',
     type,

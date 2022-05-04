@@ -1,6 +1,6 @@
-import { AnyIchorNode, defineNode } from './types'
+import { AnyNode, defineNode } from './types'
 
-export const set = <TNode extends AnyIchorNode>(type: TNode) => {
+export const set = <TNode extends AnyNode>(type: TNode) => {
   return defineNode({
     typeName: 'set',
     type,
