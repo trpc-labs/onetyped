@@ -1,10 +1,10 @@
 import { defaults } from './defaults'
 import { defineNode } from './types'
 
-export const unknown = () => {
+export const nullType = () => {
   return defineNode({
-    typeName: 'unknown',
-    type: 'unknown',
+    typeName: 'null',
+    type: 'null',
     ...defaults,
   })
 }

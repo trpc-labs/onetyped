@@ -18,6 +18,7 @@ type StringNode = PrimitiveNode<'string'>
 type BooleanNode = PrimitiveNode<'boolean'>
 type UnknownNode = PrimitiveNode<'unknown'>
 type RegexpNode = PrimitiveNode<'regexp'>
+type NullNode = PrimitiveNode<'null'>
 
 type ArrayNode<Type extends AnyNode> = ComplexNode<'array', Type>
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -43,9 +44,27 @@ interface ObjectNode<Shape extends AnyObjectShape> extends BaseNode<'object'> {
 }
 type AnyObjectNode = ObjectNode<AnyObjectShape>
 
-type AnyPrimitiveNode = NumberNode | StringNode | BooleanNode | UnknownNode | RegexpNode
+interface UnionNode<Types extends AnyNode[]> extends BaseNode<'union'> {
+  types: Types
+}
+type AnyUnionNode = UnionNode<AnyNode[]>
 
-export type AnyNode = AnyPrimitiveNode | AnyObjectNode | AnyArrayNode | AnySetNode | AnyRecordNode | AnyLiteralNode
+type AnyPrimitiveNode =
+  | NumberNode
+  | StringNode
+  | BooleanNode
+  | UnknownNode
+  | RegexpNode
+  | NullNode
+
+export type AnyNode =
+  | AnyPrimitiveNode
+  | AnyObjectNode
+  | AnyArrayNode
+  | AnySetNode
+  | AnyRecordNode
+  | AnyLiteralNode
+  | AnyUnionNode
 
 export const defineNode = <T extends AnyNode>(node: T) => node
 
@@ -55,6 +74,7 @@ interface PrimitiveTypeMap {
   'boolean': boolean
   'unknown': unknown
   'regexp': RegExp
+  'null': null
 }
 
 type InferObject<Node extends AnyObjectNode> = Simplify<
@@ -79,6 +99,8 @@ export type Infer<TNode extends AnyNode> = HandleIsRequired<
     : TNode extends AnySetNode ? Set<Infer<TNode['type']>>
     : TNode extends AnyRecordNode ? Record<string, Infer<TNode['type']>>
     : TNode extends AnyLiteralNode ? TNode['type']
+    : TNode extends AnyUnionNode ? // @ts-expect-error K can only be a number, it's an array
+    ({ [K in keyof TNode['types']]: Infer<TNode['types'][K]> })[number]
     : never,
   TNode['isRequired']
 >
