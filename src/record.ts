@@ -1,10 +1,10 @@
 import { defaults } from './defaults'
 import { AnyNode, defineNode } from './types'
 
-export const object = <TShape extends Record<string, AnyNode>>(shape: TShape) => {
+export const record = <Node extends AnyNode>(node: Node) => {
   return defineNode({
-    typeName: 'object',
-    shape,
+    typeName: 'record',
+    type: node,
     ...defaults,
   })
 }

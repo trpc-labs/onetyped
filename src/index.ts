@@ -1,8 +1,12 @@
 export { array } from './array'
 export { boolean } from './boolean'
+export { literal } from './literal'
 export { number } from './number'
 export { object } from './object'
 export { optional } from './optional'
+export { record } from './record'
+export { regexp } from './regexp'
 export { set } from './set'
 export { string } from './string'
+
 export { type Infer } from './types'

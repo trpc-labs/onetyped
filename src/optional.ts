@@ -1,8 +1,8 @@
 import { AnyNode, defineNode } from './types'
 
-export const optional = <TNode extends AnyNode>(type: TNode) => {
+export const optional = <TNode extends AnyNode>(type: TNode): Omit<TNode, 'isRequired'> & { isRequired: false } => {
   return defineNode({
-    typeName: 'optional',
-    type,
+    ...type,
+    isRequired: false,
   })
 }

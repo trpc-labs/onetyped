@@ -1,10 +1,10 @@
 import { defaults } from './defaults'
 import { defineNode } from './types'
 
-export const string = () => {
+export const regexp = () => {
   return defineNode({
-    typeName: 'string',
-    type: 'string',
+    typeName: 'regexp',
+    type: 'regexp',
     ...defaults,
   })
 }
