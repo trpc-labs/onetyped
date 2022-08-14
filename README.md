@@ -1,3 +1,3 @@
-# ichor
+# onetyped
 
-extensible validation framework
+one schema, every format

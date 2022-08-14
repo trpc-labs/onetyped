@@ -11,6 +11,6 @@
     "noEmit": true,
     "isolatedModules": true
   },
-  "include": ["src", "test"],
-  "exclude": ["node_modules", "dist"]
+  "include": ["test", "scripts"],
+  "exclude": ["node_modules"]
 }

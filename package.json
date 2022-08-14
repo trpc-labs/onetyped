@@ -1,22 +1,8 @@
 {
-  "name": "ichor",
-  "version": "0.0.0",
-  "type": "module",
-  "description": "extensible validation framework",
-  "main": "dist/index.cjs",
-  "exports": {
-    "./package.json": "./package.json",
-    ".": {
-      "import": "./dist/index.js",
-      "default": "./dist/index.cjs"
-    }
-  },
-  "types": "dist/index.d.ts",
-  "files": [
-    "dist"
-  ],
+  "name": "root",
+  "private": true,
   "scripts": {
-    "build": "tsup",
+    "build": "pnpm -r build",
     "format": "dprint fmt",
     "lint": "run-p lint:*",
     "lint:format": "dprint check",
@@ -27,38 +13,20 @@
     "test": "vitest"
   },
   "devDependencies": {
-    "@types/node": "17.0.31",
-    "@typescript-eslint/eslint-plugin": "5.22.0",
-    "@typescript-eslint/parser": "5.22.0",
-    "dprint": "0.27.1",
-    "eslint": "8.14.0",
-    "eslint-config-prettier": "8.5.0",
-    "husky": "7.0.4",
+    "@sachinraja/eslint-config": "0.1.1",
+    "@types/node": "18.7.3",
+    "dprint": "0.30.3",
+    "eslint": "8.22.0",
+    "husky": "8.0.1",
     "nano-staged": "0.8.0",
     "npm-run-all": "4.1.5",
-    "superstruct": "0.15.4",
-    "tsup": "5.12.6",
-    "typescript": "4.6.4",
-    "vite": "2.9.7",
-    "vitest": "0.10.1",
-    "zod": "3.14.4"
+    "tsup": "6.2.2",
+    "typescript": "4.7.4",
+    "vite": "3.0.7",
+    "vitest": "0.21.1"
   },
   "sideEffects": false,
   "nano-staged": {
     "*.{js,ts,md,json,yaml}": "dprint fmt"
-  },
-  "tsup": {
-    "entry": [
-      "src/index.ts"
-    ],
-    "format": [
-      "esm",
-      "cjs"
-    ],
-    "dts": {
-      "resolve": true
-    },
-    "splitting": true,
-    "clean": true
   }
 }
