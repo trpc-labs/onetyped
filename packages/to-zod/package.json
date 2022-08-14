@@ -1,8 +1,8 @@
 {
-  "name": "@onetyped/core",
+  "name": "@onetyped/to-zod",
   "version": "0.0.0",
   "type": "module",
-  "description": "one schema to rule them all",
+  "description": "onetyped schema to Zod schema",
   "main": "dist/index.cjs",
   "exports": {
     "./package.json": "./package.json",
@@ -19,5 +19,11 @@
     "build": "tsup",
     "type-check": "tsc"
   },
-  "sideEffects": false
+  "sideEffects": false,
+  "dependencies": {
+    "@onetyped/core": "workspace:0.0.0"
+  },
+  "devDependencies": {
+    "zod": "3.18.0"
+  }
 }

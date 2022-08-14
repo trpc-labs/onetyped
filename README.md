@@ -1,3 +1,3 @@
 # onetyped
 
-one schema, every format
+one schema to rule them all

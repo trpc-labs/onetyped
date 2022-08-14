@@ -1,3 +1,7 @@
+import { ArrayNode, ObjectNode, RecordNode, SetNode, TupleNode, UnionNode } from './complex'
+import { BooleanNode, LiteralNode, NumberNode, RegexpNode, StringNode, UnknownNode } from './primitive'
+import { Primitive } from './type-utils'
+
 const defaults = {
   isRequired: true,
 } as const
@@ -25,3 +29,17 @@ export const defineNode = <
 type HandleIsRequired<TNode extends AnyBaseNode> = TNode['isRequired'] extends true ? TNode['_type']
   : TNode['_type'] | undefined
 export type Infer<TNode extends AnyBaseNode> = HandleIsRequired<TNode>
+
+export type AnyNode =
+  | NumberNode
+  | StringNode
+  | BooleanNode
+  | UnknownNode
+  | RegexpNode
+  | LiteralNode<Primitive>
+  | ArrayNode<any>
+  | SetNode<any>
+  | RecordNode<any>
+  | ObjectNode<{ [key: string]: any }>
+  | UnionNode<any>
+  | TupleNode<any>
