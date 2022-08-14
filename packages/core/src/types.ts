@@ -8,11 +8,11 @@ export interface BaseNode<TypeName extends string> {
   typeName: TypeName
   isRequired: true
 }
-export type AnyNode = BaseNode<any>
+export type AnyBaseNode = BaseNode<any>
 
 type AnyBasicNode =
-  & Omit<AnyNode, keyof Defaults | '_type'>
-  & { [Key in keyof Defaults]?: AnyNode[Key] }
+  & Omit<AnyBaseNode, keyof Defaults | '_type'>
+  & { [Key in keyof Defaults]?: AnyBaseNode[Key] }
 
 export const defineNode = <
   T extends AnyBasicNode,
@@ -22,5 +22,6 @@ export const defineNode = <
   _type: undefined as unknown,
 })
 
-export type Infer<TNode extends AnyNode> = TNode['isRequired'] extends true ? TNode['_type']
-  : (TNode['_type'] | undefined)
+type HandleIsRequired<TNode extends AnyBaseNode> = TNode['isRequired'] extends true ? TNode['_type']
+  : TNode['_type'] | undefined
+export type Infer<TNode extends AnyBaseNode> = HandleIsRequired<TNode>

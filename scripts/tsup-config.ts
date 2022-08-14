@@ -6,6 +6,5 @@ export const tsupDefaultConfig = defineConfig({
     resolve: true,
   },
   target: 'es2020',
-  splitting: true,
   clean: true,
 })

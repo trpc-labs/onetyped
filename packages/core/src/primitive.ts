@@ -9,7 +9,6 @@ export const number = (): NumberNode => {
   return defineNode({
     typeName: 'number',
     type: 'number',
-    _type: undefined as unknown as number,
   })
 }
 
