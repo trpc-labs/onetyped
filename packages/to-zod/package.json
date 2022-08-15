@@ -6,9 +6,13 @@
   "main": "dist/index.cjs",
   "exports": {
     "./package.json": "./package.json",
-    ".": {
-      "import": "./dist/index.js",
-      "default": "./dist/index.cjs"
+    "./schema": {
+      "import": "./dist/schema.js",
+      "default": "./dist/schema.cjs"
+    },
+    "./string": {
+      "import": "./dist/string.js",
+      "default": "./dist/string.cjs"
     }
   },
   "types": "dist/index.d.ts",
@@ -25,5 +29,13 @@
   },
   "devDependencies": {
     "zod": "3.18.0"
+  },
+  "peerDependencies": {
+    "zod": "^3"
+  },
+  "peerDependenciesMeta": {
+    "zod": {
+      "optional": true
+    }
   }
 }
