@@ -1,6 +1,25 @@
-import { ArrayNode, ObjectNode, RecordNode, SetNode, TupleNode, UnionNode } from './complex'
-import { BooleanNode, LiteralNode, NumberNode, RegexpNode, StringNode, UnknownNode } from './primitive'
-import { Primitive } from './type-utils'
+import {
+  AnyArrayNode,
+  AnyFunctionNode,
+  AnyIntersectionNode,
+  AnyMapNode,
+  AnyObjectNode,
+  AnyRecordNode,
+  AnySetNode,
+  AnyTupleNode,
+  AnyUnionNode,
+} from './complex'
+import {
+  AnyLiteralNode,
+  AnyTypeNode,
+  BigIntNode,
+  BooleanNode,
+  DateNode,
+  NumberNode,
+  RegexpNode,
+  StringNode,
+  UnknownNode,
+} from './primitive'
 
 const defaults = {
   isRequired: true,
@@ -31,15 +50,26 @@ type HandleIsRequired<TNode extends AnyBaseNode> = TNode['isRequired'] extends t
 export type Infer<TNode extends AnyBaseNode> = HandleIsRequired<TNode>
 
 export type AnyNode =
-  | NumberNode
   | StringNode
+  | NumberNode
   | BooleanNode
+  | AnyLiteralNode
   | UnknownNode
+  | AnyTypeNode
   | RegexpNode
-  | LiteralNode<Primitive>
-  | ArrayNode<any>
-  | SetNode<any>
-  | RecordNode<any>
-  | ObjectNode<{ [key: string]: any }>
-  | UnionNode<any>
-  | TupleNode<any>
+  | BigIntNode
+  | DateNode
+  | AnyObjectNode
+  | AnyArrayNode
+  | AnySetNode
+  | AnyRecordNode
+  | AnyMapNode
+  | AnyFunctionNode
+  | AnyUnionNode
+  | AnyTupleNode
+  | AnyIntersectionNode
+
+export type InferNodeArray<TNodes extends AnyBaseNode[], InferredTypes extends unknown[] = []> = TNodes extends
+  [infer Head extends AnyBaseNode, ...infer Rest extends AnyBaseNode[]]
+  ? InferNodeArray<Rest, [...InferredTypes, Infer<Head>]>
+  : InferredTypes

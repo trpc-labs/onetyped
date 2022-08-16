@@ -7,3 +7,12 @@ export type Simplify<T> = T extends any[] | Date ? T
   : { [K in keyof T]: T[K] } & {}
 
 export type Primitive = string | number | bigint | boolean | null | undefined
+
+/**
+ * @see https://github.com/millsp/ts-toolbelt/blob/319e55123b9571d49f34eca3e5926e41ca73e0f3/sources/Function/Narrow.ts
+ */
+export type Narrow<T> =
+  | (T extends [] ? [] : never)
+  | (T extends string | number | boolean | bigint ? T : never)
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  | { [K in keyof T]: T[K] extends Function ? T[K] : Narrow<T[K]> }

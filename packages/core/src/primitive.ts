@@ -1,17 +1,6 @@
 import { Primitive } from './type-utils'
 import { BaseNode, defineNode } from './types'
 
-export interface NumberNode extends BaseNode<'number'> {
-  readonly _type: number
-  type: 'number'
-}
-export const number = (): NumberNode => {
-  return defineNode({
-    typeName: 'number',
-    type: 'number',
-  })
-}
-
 export interface StringNode extends BaseNode<'string'> {
   readonly _type: string
   type: 'string'
@@ -20,6 +9,17 @@ export const string = (): StringNode => {
   return defineNode({
     typeName: 'string',
     type: 'string',
+  })
+}
+
+export interface NumberNode extends BaseNode<'number'> {
+  readonly _type: number
+  type: 'number'
+}
+export const number = (): NumberNode => {
+  return defineNode({
+    typeName: 'number',
+    type: 'number',
   })
 }
 
@@ -34,6 +34,18 @@ export const boolean = (): BooleanNode => {
   })
 }
 
+export interface LiteralNode<Type extends Primitive> extends BaseNode<'literal'> {
+  readonly _type: Type
+  type: Type
+}
+export type AnyLiteralNode = LiteralNode<Primitive>
+export const literal = <Literal extends Primitive>(literal: Literal): LiteralNode<Literal> => {
+  return defineNode({
+    typeName: 'literal',
+    type: literal,
+  })
+}
+
 export interface UnknownNode extends BaseNode<'unknown'> {
   readonly _type: unknown
   type: 'unknown'
@@ -42,6 +54,17 @@ export const unknown = (): UnknownNode => {
   return defineNode({
     typeName: 'unknown',
     type: 'unknown',
+  })
+}
+
+export interface AnyTypeNode extends BaseNode<'any'> {
+  readonly _type: any
+  type: 'any'
+}
+export const any = (): AnyTypeNode => {
+  return defineNode({
+    typeName: 'any',
+    type: 'any',
   })
 }
 
@@ -56,14 +79,25 @@ export const regexp = (): RegexpNode => {
   })
 }
 
-export interface LiteralNode<Type extends Primitive> extends BaseNode<'literal'> {
-  readonly _type: Type
-  type: Type
+export interface BigIntNode extends BaseNode<'bigint'> {
+  readonly _type: bigint
+  type: 'bigint'
 }
-export const literal = <Literal extends Primitive>(literal: Literal): LiteralNode<Literal> => {
+export const bigint = (): BigIntNode => {
   return defineNode({
-    typeName: 'literal',
-    type: literal,
+    typeName: 'bigint',
+    type: 'bigint',
+  })
+}
+
+export interface DateNode extends BaseNode<'date'> {
+  readonly _type: Date
+  type: 'date'
+}
+export const date = (): DateNode => {
+  return defineNode({
+    typeName: 'date',
+    type: 'date',
   })
 }
 

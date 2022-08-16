@@ -1,54 +1,80 @@
-import { AnyNode, Infer } from '@onetyped/core'
+import { AnyNode, Infer, mapMultipleInnerNode, mapObjectNode } from '@onetyped/core'
 import { z } from 'zod'
 
 type ToZodSchema<TNode extends AnyNode> = z.ZodType<Infer<TNode>>
 
-export const toZodSchema = <TNode extends AnyNode>(schema: TNode): ToZodSchema<TNode> => {
-  switch (schema.typeName) {
-    case 'number': {
-      return z.number()
-    }
+export const toZodSchema = <TNode extends AnyNode>(node: TNode): ToZodSchema<TNode> => {
+  switch (node.typeName) {
     case 'string': {
       return z.string()
+    }
+    case 'number': {
+      return z.number()
     }
     case 'boolean': {
       return z.boolean()
     }
+    case 'literal': {
+      return z.literal(node.type)
+    }
     case 'unknown': {
       return z.unknown()
+    }
+    case 'any': {
+      return z.any()
     }
     case 'regexp': {
       return z.custom<RegExp>((data) => data instanceof RegExp)
     }
-    case 'literal': {
-      return z.literal(schema.type)
+    case 'bigint': {
+      return z.bigint()
     }
-    case 'array': {
-      return z.array(toZodSchema(schema.type))
-    }
-    case 'set': {
-      return z.set(toZodSchema(schema.type))
-    }
-    case 'record': {
-      return z.record(toZodSchema(schema.type))
+    case 'date': {
+      return z.date()
     }
     case 'object': {
-      const propertySchemas: z.ZodRawShape = {}
+      const propertySchemas = Object.fromEntries(mapObjectNode(node, toZodSchema))
 
-      for (const [key, value] of Object.entries(schema.shape)) {
-        propertySchemas[key] = toZodSchema(value)
-      }
       return z.object(propertySchemas)
     }
+    case 'array': {
+      return z.array(toZodSchema(node.type))
+    }
+    case 'set': {
+      return z.set(toZodSchema(node.type))
+    }
+    case 'record': {
+      return z.record(toZodSchema(node.type))
+    }
+    case 'map': {
+      return z.map(toZodSchema(node.key), toZodSchema(node.value))
+    }
+    case 'function': {
+      const argumentSchemas = z.tuple(
+        node.arguments.map((argument) => toZodSchema(argument)) as [] | [z.ZodTypeAny, ...z.ZodTypeAny[]],
+      )
+      const returnSchema = typeof node.return !== 'undefined' ? toZodSchema(node.return) : undefined
+      return z.function(argumentSchemas, returnSchema)
+    }
     case 'union': {
-      const types: AnyNode[] = schema.types
-      const schemas = types.map((type) => toZodSchema(type)) as [z.ZodTypeAny, z.ZodTypeAny, ...z.ZodTypeAny[]]
+      if (node.types.length === 1) return toZodSchema(node.types[0])
+
+      const schemas = mapMultipleInnerNode(node, toZodSchema) as [z.ZodTypeAny, z.ZodTypeAny, ...z.ZodTypeAny[]]
       return z.union(schemas)
     }
     case 'tuple': {
-      const types: AnyNode[] = schema.types
-      const zodTuple = types.map((type) => toZodSchema(type)) as [] | [z.ZodTypeAny, ...z.ZodTypeAny[]]
-      return z.tuple(zodTuple)
+      const schemas = mapMultipleInnerNode(node, toZodSchema) as [z.ZodTypeAny, ...z.ZodTypeAny[]]
+      return z.tuple(schemas)
+    }
+    case 'intersection': {
+      const types = [...node.types]
+      let schema = toZodSchema(types.pop())
+
+      for (const type of types) {
+        schema = schema.and(toZodSchema(type))
+      }
+
+      return schema
     }
   }
 }

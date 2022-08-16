@@ -15,7 +15,6 @@
       "default": "./dist/string.cjs"
     }
   },
-  "types": "dist/index.d.ts",
   "files": [
     "dist"
   ],
@@ -28,6 +27,7 @@
     "@onetyped/core": "workspace:0.0.0"
   },
   "devDependencies": {
+    "superstruct": "^0.16.0",
     "zod": "3.18.0"
   },
   "peerDependencies": {
