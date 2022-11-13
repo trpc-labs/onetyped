@@ -1,5 +1,6 @@
 import {
 	any,
+	AnyBaseNode,
 	AnyNode,
 	array,
 	bigint,
@@ -19,7 +20,7 @@ import {
 	union,
 	unknown,
 } from '@onetyped/core'
-import ts, { ObjectType } from 'typescript'
+import ts, { ObjectType, TypeChecker } from 'typescript'
 
 const hasFlag = (type: ts.Type, flag: ts.TypeFlags): boolean => {
 	return (type.flags & flag) === flag
@@ -33,7 +34,34 @@ const hasObjectFlag = (type: ts.ObjectType, flag: ts.ObjectFlags): boolean => {
 	return (type.objectFlags & flag) === flag
 }
 
-export const fromType = (type: ts.Type, locationNode: ts.Node, checker: ts.TypeChecker): AnyNode => {
+const getNodeFromCallSignatures = (
+	callSignatures: readonly ts.Signature[],
+	locationNode: ts.Node,
+	checker: TypeChecker,
+) => {
+	if (callSignatures.length > 0) {
+		const nodeCallSignatures = callSignatures.map((signature) => {
+			const parameters = signature.getParameters().map((parameter) => {
+				const parameterType = checker.getTypeOfSymbolAtLocation(parameter, locationNode)
+				return fromType(parameterType, locationNode, checker)
+			})
+			const returnType = checker.getReturnTypeOfSignature(signature)
+
+			return func({
+				arguments: parameters,
+				return: fromType(returnType, locationNode, checker),
+			})
+		}) as [AnyNode, ...AnyNode[]]
+
+		if (nodeCallSignatures.length === 1) {
+			return nodeCallSignatures[0]
+		}
+
+		return union(nodeCallSignatures)
+	}
+}
+
+export const fromType = (type: ts.Type, locationNode: ts.Node, checker: ts.TypeChecker): AnyBaseNode => {
 	if (hasFlag(type, ts.TypeFlags.String)) {
 		return string()
 	}
@@ -83,32 +111,27 @@ export const fromType = (type: ts.Type, locationNode: ts.Node, checker: ts.TypeC
 
 		const callSignatures = type.getCallSignatures()
 
-		if (callSignatures.length > 0) {
-			const nodeCallSignatures = callSignatures.map((signature) => {
-				const parameters = signature.getParameters().map((parameter) => {
-					const parameterType = checker.getTypeOfSymbolAtLocation(parameter, locationNode)
-					return fromType(parameterType, locationNode, checker)
-				})
-				const returnType = checker.getReturnTypeOfSignature(signature)
-
-				return func({
-					arguments: parameters as any,
-					return: fromType(returnType, locationNode, checker),
-				})
-			}) as [AnyNode, ...AnyNode[]]
-
-			return union(nodeCallSignatures)
-		}
+		const functionNode = getNodeFromCallSignatures(callSignatures, locationNode, checker)
 
 		const propertySchemas = Object.fromEntries(
 			type.getProperties().map((
 				property,
-			) => [
-				property.getName(),
-				fromType(checker.getTypeOfSymbolAtLocation(property, locationNode), locationNode, checker),
-			]),
+			) => {
+				const propertyType = checker.getTypeOfSymbolAtLocation(property, locationNode)
+				let node = fromType(propertyType, locationNode, checker)
+				if (hasSymbolFlag(property, ts.SymbolFlags.Optional)) {
+					node = optional(node)
+				}
+				return [property.name, node]
+			}),
 		)
-		return object(propertySchemas)
+		const objectNode = object(propertySchemas)
+
+		if (functionNode) {
+			return intersection([functionNode, objectNode])
+		}
+
+		return objectNode
 	}
 
 	const symbol = type.getSymbol()
@@ -165,21 +188,19 @@ export const fromType = (type: ts.Type, locationNode: ts.Node, checker: ts.TypeC
 		return intersection(intersectionTypes)
 	}
 
-	if (hasSymbolFlag(type, ts.SymbolFlags.Optional)) {
-		return optional(number())
-	}
-
 	throw new Error(`Unknown type: ${checker.typeToString(type)}`)
 }
 
 const filename = 'test.ts'
 const code = `
-type User = {
+interface User {
 	name: string & { length: number }
-	age: number
+	age?: number
 	func: (a: number, b: string) => string
 	role: 'admin' | 'user'
 	t: [string, number]
+	
+	(a: number, b: string) => string
 }
 const user = undefined as unknown as User`
 
@@ -224,7 +245,7 @@ function recursivelyPrintVariableDeclarations(
 
 		const ourNode = fromType(type, sourceFile, typeChecker)
 
-		console.log(ourNode)
+		console.log(JSON.stringify(ourNode, null, 2))
 	}
 
 	node.forEachChild(child => recursivelyPrintVariableDeclarations(child, sourceFile))
