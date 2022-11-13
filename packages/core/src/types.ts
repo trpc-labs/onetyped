@@ -29,7 +29,7 @@ type Defaults = typeof defaults
 export interface BaseNode<TypeName extends string> {
 	readonly _type: any
 	typeName: TypeName
-	isRequired: true
+	isRequired: boolean
 }
 export type AnyBaseNode = BaseNode<any>
 

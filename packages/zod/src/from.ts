@@ -9,8 +9,10 @@ import {
 	intersection,
 	literal,
 	map,
+	nullable,
 	number,
 	object,
+	optional,
 	record,
 	set,
 	string,
@@ -97,6 +99,14 @@ export const fromZodSchema = <TZodType extends z.ZodTypeAny>(schema: TZodType): 
 		case ZodFirstPartyTypeKind.ZodIntersection: {
 			const schemas = schema._def.options.map((option: ZodTypeAny) => fromZodSchema(option))
 			return intersection(schemas)
+		}
+
+		case ZodFirstPartyTypeKind.ZodOptional: {
+			return optional(fromZodSchema(schema._def.innerType))
+		}
+
+		case ZodFirstPartyTypeKind.ZodNullable: {
+			return nullable(fromZodSchema(schema._def.innerType))
 		}
 
 		default: {
