@@ -3,152 +3,152 @@ import { AnyBaseNode, BaseNode, defineNode, Infer, InferNodeArray } from './type
 
 export type AnyObjectShape = { [key: string]: AnyBaseNode }
 export interface ObjectNode<Shape extends AnyObjectShape> extends BaseNode<'object'> {
-  readonly _type: Simplify<
-    & {
-      [Property in keyof Shape as undefined extends Infer<Shape[Property]> ? never : Property]: Infer<
-        Shape[Property]
-      >
-    }
-    & {
-      [Property in keyof Shape as undefined extends Infer<Shape[Property]> ? Property : never]?: Infer<
-        Shape[Property]
-      >
-    }
-  >
-  shape: Shape
+	readonly _type: Simplify<
+		& {
+			[Property in keyof Shape as undefined extends Infer<Shape[Property]> ? never : Property]: Infer<
+				Shape[Property]
+			>
+		}
+		& {
+			[Property in keyof Shape as undefined extends Infer<Shape[Property]> ? Property : never]?: Infer<
+				Shape[Property]
+			>
+		}
+	>
+	shape: Shape
 }
 export type AnyObjectNode = ObjectNode<{ [key: string]: any }>
 export const object = <TShape extends AnyObjectShape>(shape: TShape): ObjectNode<TShape> => {
-  return defineNode({
-    typeName: 'object',
-    shape,
-  })
+	return defineNode({
+		typeName: 'object',
+		shape,
+	})
 }
 
 export interface ArrayNode<Type extends AnyBaseNode> extends BaseNode<'array'> {
-  readonly _type: Infer<Type>[]
-  type: Type
+	readonly _type: Infer<Type>[]
+	type: Type
 }
 export type AnyArrayNode = ArrayNode<any>
 export const array = <TNode extends AnyBaseNode>(type: TNode): ArrayNode<TNode> => {
-  return defineNode({
-    typeName: 'array',
-    type,
-  })
+	return defineNode({
+		typeName: 'array',
+		type,
+	})
 }
 
 export interface SetNode<Type extends AnyBaseNode> extends BaseNode<'set'> {
-  readonly _type: Set<Infer<Type>>
-  type: Type
+	readonly _type: Set<Infer<Type>>
+	type: Type
 }
 export type AnySetNode = SetNode<any>
 export const set = <TNode extends AnyBaseNode>(type: TNode): SetNode<TNode> => {
-  return defineNode({
-    typeName: 'set',
-    type,
-  })
+	return defineNode({
+		typeName: 'set',
+		type,
+	})
 }
 
 export interface RecordNode<Type extends AnyBaseNode> extends BaseNode<'record'> {
-  readonly _type: Record<string, Infer<Type>>
-  type: Type
+	readonly _type: Record<string, Infer<Type>>
+	type: Type
 }
 export type AnyRecordNode = RecordNode<any>
 export const record = <TNode extends AnyBaseNode>(node: TNode): RecordNode<TNode> => {
-  return defineNode({
-    typeName: 'record',
-    type: node,
-  })
+	return defineNode({
+		typeName: 'record',
+		type: node,
+	})
 }
 
 export interface MapNode<KeyNode extends AnyBaseNode, ValueNode extends AnyBaseNode> extends BaseNode<'map'> {
-  readonly _type: Map<Infer<KeyNode>, Infer<ValueNode>>
-  key: KeyNode
-  value: ValueNode
+	readonly _type: Map<Infer<KeyNode>, Infer<ValueNode>>
+	key: KeyNode
+	value: ValueNode
 }
 export type AnyMapNode = MapNode<any, any>
 
 export const map = <KeyNode extends AnyBaseNode, ValueNode extends AnyBaseNode>(
-  key: KeyNode,
-  value: ValueNode,
+	key: KeyNode,
+	value: ValueNode,
 ): MapNode<KeyNode, ValueNode> => {
-  return defineNode({
-    typeName: 'map',
-    key,
-    value,
-  })
+	return defineNode({
+		typeName: 'map',
+		key,
+		value,
+	})
 }
 
 export interface FunctionNode<TArguments extends AnyBaseNode[], TReturn extends AnyBaseNode | undefined>
-  extends BaseNode<'function'>
+	extends BaseNode<'function'>
 {
-  readonly _type: (
-    ...arguments_: TArguments extends AnyBaseNode[] ? InferNodeArray<TArguments> : []
-  ) => TReturn extends AnyBaseNode ? Infer<TReturn> : void
-  arguments: TArguments
-  return: TReturn
+	readonly _type: (
+		...arguments_: TArguments extends AnyBaseNode[] ? InferNodeArray<TArguments> : []
+	) => TReturn extends AnyBaseNode ? Infer<TReturn> : void
+	arguments: TArguments
+	return: TReturn
 }
 
 export type AnyFunctionNode = FunctionNode<any[], any>
 // eslint-disable-next-line unicorn/prevent-abbreviations
 export const func = <
-  TArguments extends AnyBaseNode[] = [],
-  TReturn extends AnyBaseNode | undefined = undefined,
+	TArguments extends AnyBaseNode[] = [],
+	TReturn extends AnyBaseNode | undefined = undefined,
 >(
-  options: { arguments?: Narrow<TArguments>; return?: TReturn } = {},
+	options: { arguments?: Narrow<TArguments>; return?: TReturn } = {},
 ): FunctionNode<TArguments, TReturn> => {
-  const arguments_ = options.arguments ?? []
+	const arguments_ = options.arguments ?? []
 
-  return defineNode({
-    typeName: 'function',
-    arguments: arguments_ as TArguments,
-    return: options.return as TReturn,
-  })
+	return defineNode({
+		typeName: 'function',
+		arguments: arguments_ as TArguments,
+		return: options.return as TReturn,
+	})
 }
 
 export interface UnionNode<Types extends AnyBaseNode[]> extends BaseNode<'union'> {
-  readonly _type: ({ [K in keyof Types]: Infer<Types[K]> })[number]
-  types: Types
+	readonly _type: ({ [K in keyof Types]: Infer<Types[K]> })[number]
+	types: Types
 }
 export type AnyUnionNode = UnionNode<any>
 export const union = <TNode extends AnyBaseNode, TNodes extends AnyBaseNode[]>(
-  nodes: [TNode, ...TNodes],
+	nodes: [TNode, ...TNodes],
 ): UnionNode<[TNode, ...TNodes]> => {
-  return defineNode({
-    typeName: 'union',
-    types: nodes,
-  })
+	return defineNode({
+		typeName: 'union',
+		types: nodes,
+	})
 }
 
 export interface TupleNode<Types extends AnyBaseNode[]> extends BaseNode<'tuple'> {
-  readonly _type: InferNodeArray<Types>
-  types: Types
+	readonly _type: InferNodeArray<Types>
+	types: Types
 }
 export type AnyTupleNode = TupleNode<any>
 export const tuple = <TNode extends AnyBaseNode, TNodes extends AnyBaseNode[]>(
-  nodes: [TNode, ...TNodes],
+	nodes: [TNode, ...TNodes],
 ): TupleNode<[TNode, ...TNodes]> => {
-  return defineNode({
-    typeName: 'tuple',
-    types: nodes,
-  })
+	return defineNode({
+		typeName: 'tuple',
+		types: nodes,
+	})
 }
 
 type InferIntersection<TNodes extends AnyBaseNode[], InferredType = never> = TNodes extends
-  [infer Head extends AnyBaseNode, ...infer Rest extends AnyBaseNode[]]
-  ? InferIntersection<Rest, InferredType & Infer<Head>>
-  : InferredType
+	[infer Head extends AnyBaseNode, ...infer Rest extends AnyBaseNode[]]
+	? InferIntersection<Rest, InferredType & Infer<Head>>
+	: InferredType
 
 export interface IntersectionNode<Types extends AnyBaseNode[]> extends BaseNode<'intersection'> {
-  readonly _type: InferIntersection<Types>
-  types: Types
+	readonly _type: InferIntersection<Types>
+	types: Types
 }
 export type AnyIntersectionNode = IntersectionNode<any>
 export const intersection = <TNode extends AnyBaseNode, TNodes extends AnyBaseNode[]>(
-  nodes: [TNode, ...TNodes],
+	nodes: [TNode, ...TNodes],
 ): IntersectionNode<[TNode, ...TNodes]> => {
-  return defineNode({
-    typeName: 'intersection',
-    types: nodes,
-  })
+	return defineNode({
+		typeName: 'intersection',
+		types: nodes,
+	})
 }

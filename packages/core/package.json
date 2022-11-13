@@ -1,23 +1,23 @@
 {
-  "name": "@onetyped/core",
-  "version": "0.0.0",
-  "type": "module",
-  "description": "one schema to rule them all",
-  "main": "dist/index.cjs",
-  "exports": {
-    "./package.json": "./package.json",
-    ".": {
-      "import": "./dist/index.js",
-      "default": "./dist/index.cjs"
-    }
-  },
-  "types": "dist/index.d.ts",
-  "files": [
-    "dist"
-  ],
-  "scripts": {
-    "build": "tsup",
-    "type-check": "tsc"
-  },
-  "sideEffects": false
+	"name": "@onetyped/core",
+	"version": "0.0.0",
+	"type": "module",
+	"description": "one schema to rule them all",
+	"main": "dist/index.cjs",
+	"exports": {
+		"./package.json": "./package.json",
+		".": {
+			"import": "./dist/index.js",
+			"default": "./dist/index.cjs"
+		}
+	},
+	"types": "dist/index.d.ts",
+	"files": [
+		"dist"
+	],
+	"scripts": {
+		"build": "tsup",
+		"type-check": "tsc"
+	},
+	"sideEffects": false
 }
