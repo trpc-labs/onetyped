@@ -95,6 +95,10 @@ export const fromType = (type: ts.Type, locationNode: ts.Node, checker: ts.TypeC
 		return bigint()
 	}
 
+	type A = [string, number?]
+	type B = {
+		[key in keyof A]: A[key]
+	}
 	if (hasFlag(type, ts.TypeFlags.Object)) {
 		const objectType = type as ObjectType
 		console.log(checker.typeToString(type))
@@ -102,9 +106,17 @@ export const fromType = (type: ts.Type, locationNode: ts.Node, checker: ts.TypeC
 			const { target } = (type as ts.TypeReference)
 
 			if (hasObjectFlag(target, ts.ObjectFlags.Tuple)) {
-				const tupleTypes = checker.getTypeArguments(type as ts.TypeReference).map((tupleType) =>
-					fromType(tupleType, locationNode, checker)
-				) as [AnyNode, ...AnyNode[]]
+				const tupleTypes = type.getProperties().map((property) => {
+					if (property.name === 'length') return
+
+					const propertyType = checker.getTypeOfSymbolAtLocation(property, locationNode)
+					let node = fromType(propertyType, locationNode, checker)
+					if (hasSymbolFlag(property, ts.SymbolFlags.Optional)) {
+						node = optional(node)
+					}
+
+					return node
+				}).filter(Boolean) as [AnyNode, ...AnyNode[]]
 				return tuple(tupleTypes)
 			}
 		}
@@ -198,7 +210,7 @@ interface User {
 	age?: number
 	func: (a: number, b: string) => string
 	role: 'admin' | 'user'
-	t: [string, number]
+	t: [string, number, boolean?]
 	
 	(a: number, b: string) => string
 }
