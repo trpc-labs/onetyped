@@ -1,6 +1,6 @@
 {
 	"name": "@onetyped/core",
-	"version": "0.0.0",
+	"version": "0.0.1",
 	"type": "module",
 	"description": "one schema to rule them all",
 	"repository": {
@@ -14,7 +14,9 @@
 	},
 	"author": "Sachin Raja <sachinraja2349@gmail.com>",
 	"license": "MIT",
-	"keywords": ["onetyped"],
+	"keywords": [
+		"onetyped"
+	],
 	"main": "dist/index.cjs",
 	"exports": {
 		"./package.json": "./package.json",

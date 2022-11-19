@@ -1,6 +1,6 @@
 {
 	"name": "@onetyped/typebox",
-	"version": "0.0.0",
+	"version": "0.0.1",
 	"type": "module",
 	"description": "onetyped TypeBox integration",
 	"repository": {
@@ -14,7 +14,10 @@
 	},
 	"author": "Sachin Raja <sachinraja2349@gmail.com>",
 	"license": "MIT",
-	"keywords": ["onetyped", "typebox"],
+	"keywords": [
+		"onetyped",
+		"typebox"
+	],
 	"main": "dist/index.cjs",
 	"types": "dist/index.d.ts",
 	"exports": {
