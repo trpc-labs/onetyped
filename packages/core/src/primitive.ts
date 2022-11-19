@@ -34,6 +34,28 @@ export const boolean = (): BooleanNode => {
 	})
 }
 
+export interface NullNode extends BaseNode<'null'> {
+	readonly _type: null
+	type: 'null'
+}
+export const nullType = (): NullNode => {
+	return defineNode({
+		typeName: 'null',
+		type: 'null',
+	})
+}
+
+export interface UndefinedNode extends BaseNode<'undefined'> {
+	readonly _type: undefined
+	type: 'undefined'
+}
+export const undefinedType = (): UndefinedNode => {
+	return defineNode({
+		typeName: 'undefined',
+		type: 'undefined',
+	})
+}
+
 export interface LiteralNode<Type extends Primitive> extends BaseNode<'literal'> {
 	readonly _type: Type
 	type: Type
@@ -99,8 +121,4 @@ export const date = (): DateNode => {
 		typeName: 'date',
 		type: 'date',
 	})
-}
-
-export const nullType = (): LiteralNode<null> => {
-	return literal(null)
 }

@@ -1,5 +1,6 @@
 import {
 	any,
+	AnyRecordKeyNode,
 	array,
 	bigint,
 	boolean,
@@ -24,10 +25,11 @@ import { z, ZodFirstPartyTypeKind, ZodTypeAny } from 'zod'
 
 export const fromZodSchema = <TZodType extends z.ZodTypeAny>(schema: TZodType): CustomTypeNode<z.infer<TZodType>> => {
 	const typeName: ZodFirstPartyTypeKind = schema._def.typeName
-	switch (schema._def) {
+	switch (typeName) {
 		case ZodFirstPartyTypeKind.ZodString: {
 			return string()
 		}
+
 		case ZodFirstPartyTypeKind.ZodNumber: {
 			return number()
 		}
@@ -72,7 +74,7 @@ export const fromZodSchema = <TZodType extends z.ZodTypeAny>(schema: TZodType): 
 		}
 
 		case ZodFirstPartyTypeKind.ZodRecord: {
-			return record(fromZodSchema(schema._def.valueType))
+			return record(fromZodSchema(schema._def.keyType) as AnyRecordKeyNode, fromZodSchema(schema._def.valueType))
 		}
 
 		case ZodFirstPartyTypeKind.ZodMap: {

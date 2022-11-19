@@ -11,25 +11,44 @@ export const mapObjectNode = <TMapperResult>(node: AnyObjectNode, mapper: (node:
 	Object.entries(node.shape).map(([key, value]) => [key, mapper(value)] as const)
 
 export const serializePrimitive = (value: Primitive) => {
-	if (typeof value === 'string') {
-		return JSON.stringify(value)
+	switch (typeof value) {
+		case 'string': {
+			return JSON.stringify(value)
+		}
+		case 'number': {
+			return value.toString()
+		}
+		case 'boolean': {
+			return value === true ? 'true' : 'false'
+		}
+		case 'bigint': {
+			return `${value.toString()}n`
+		}
+	}
+}
+
+export const isNodeOptional = (node: AnyNode) => {
+	if (node.typeName === 'undefined') {
+		return true
 	}
 
-	if (typeof value === 'number') {
-		return value.toString()
+	if (node.typeName === 'union') {
+		return node.types.some((type: AnyNode) => isNodeOptional(type))
 	}
 
-	if (typeof value === 'boolean') {
-		return value === true ? 'true' : 'false'
-	}
+	return false
+}
 
-	if (typeof value === 'bigint') {
-		return `${value.toString()}n`
-	}
+export class UnsupportedError extends Error {
+	readonly integration: string
+	readonly feature: string
 
-	if (value === null) {
-		return 'null'
-	}
+	constructor(integration: string, feature: string) {
+		super(`${integration} does not support ${feature}`)
+		this.name = 'UnsupportedError'
+		this.integration = integration
+		this.feature = feature
 
-	return 'undefined'
+		Object.setPrototypeOf(this, UnsupportedError.prototype)
+	}
 }

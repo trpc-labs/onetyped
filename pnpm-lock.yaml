@@ -29,6 +29,21 @@ importers:
   packages/core:
     specifiers: {}
 
+  packages/typebox:
+    specifiers:
+      '@onetyped/core': workspace:*
+      '@sinclair/typebox': 0.25.8
+    dependencies:
+      '@onetyped/core': link:../core
+    devDependencies:
+      '@sinclair/typebox': 0.25.8
+
+  packages/typescript:
+    specifiers:
+      '@onetyped/core': workspace:*
+    dependencies:
+      '@onetyped/core': link:../core
+
   packages/zod:
     specifiers:
       '@onetyped/core': workspace:*
@@ -184,6 +199,10 @@ packages:
     transitivePeerDependencies:
       - supports-color
       - typescript
+    dev: true
+
+  /@sinclair/typebox/0.25.8:
+    resolution: {integrity: sha512-/7GXgMOCfnxpIov52cPetqQ7bxRBaTBJAgp04Se2UQB1J0vUfEOIMpn63cLc3S5JXDUflCWxELKDV8eiPpmUTQ==}
     dev: true
 
   /@types/chai-subset/1.3.3:

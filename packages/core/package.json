@@ -3,6 +3,18 @@
 	"version": "0.0.0",
 	"type": "module",
 	"description": "one schema to rule them all",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/sachinraja/onetyped.git",
+		"directory": "packages/core"
+	},
+	"homepage": "https://github.com/sachinraja/onetyped/tree/main/packages/core#readme",
+	"bugs": {
+		"url": "https://github.com/sachinraja/onetyped/issues"
+	},
+	"author": "Sachin Raja <sachinraja2349@gmail.com>",
+	"license": "MIT",
+	"keywords": ["onetyped"],
 	"main": "dist/index.cjs",
 	"exports": {
 		"./package.json": "./package.json",

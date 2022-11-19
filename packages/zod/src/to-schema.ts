@@ -14,6 +14,12 @@ export const toZodSchema = <TNode extends AnyNode>(node: TNode): ToZodSchema<TNo
 		case 'boolean': {
 			return z.boolean()
 		}
+		case 'null': {
+			return z.null()
+		}
+		case 'undefined': {
+			return z.undefined()
+		}
 		case 'literal': {
 			return z.literal(node.type)
 		}
@@ -44,7 +50,7 @@ export const toZodSchema = <TNode extends AnyNode>(node: TNode): ToZodSchema<TNo
 			return z.set(toZodSchema(node.type))
 		}
 		case 'record': {
-			return z.record(toZodSchema(node.type))
+			return z.record(toZodSchema(node.key), toZodSchema(node.value))
 		}
 		case 'map': {
 			return z.map(toZodSchema(node.key), toZodSchema(node.value))

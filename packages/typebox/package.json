@@ -1,20 +1,20 @@
 {
-	"name": "@onetyped/zod",
+	"name": "@onetyped/typebox",
 	"version": "0.0.0",
 	"type": "module",
-	"description": "onetyped Zod integration",
+	"description": "onetyped TypeBox integration",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/sachinraja/onetyped.git",
-		"directory": "packages/zod"
+		"directory": "packages/typebox"
 	},
-	"homepage": "https://github.com/sachinraja/onetyped/tree/main/packages/zod#readme",
+	"homepage": "https://github.com/sachinraja/onetyped/tree/main/packages/typebox#readme",
 	"bugs": {
 		"url": "https://github.com/sachinraja/onetyped/issues"
 	},
 	"author": "Sachin Raja <sachinraja2349@gmail.com>",
 	"license": "MIT",
-	"keywords": ["onetyped", "zod"],
+	"keywords": ["onetyped", "typebox"],
 	"main": "dist/index.cjs",
 	"types": "dist/index.d.ts",
 	"exports": {
@@ -36,13 +36,13 @@
 		"@onetyped/core": "workspace:*"
 	},
 	"devDependencies": {
-		"zod": "3.19.1"
+		"@sinclair/typebox": "0.25.8"
 	},
 	"peerDependencies": {
-		"zod": "^3"
+		"@sinclair/typebox": "^0.25.8"
 	},
 	"peerDependenciesMeta": {
-		"zod": {
+		"@sinclair/typebox": {
 			"optional": true
 		}
 	}

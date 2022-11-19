@@ -1,3 +1,4 @@
+import { LiteralNode, NumberNode, StringNode } from './primitive'
 import { Narrow, Simplify } from './type-utils'
 import { AnyBaseNode, BaseNode, defineNode, Infer, InferNodeArray } from './types'
 
@@ -49,15 +50,21 @@ export const set = <TNode extends AnyBaseNode>(type: TNode): SetNode<TNode> => {
 	})
 }
 
-export interface RecordNode<Type extends AnyBaseNode> extends BaseNode<'record'> {
-	readonly _type: Record<string, Infer<Type>>
-	type: Type
+export type AnyRecordKeyNode = StringNode | NumberNode | LiteralNode<string | number>
+export interface RecordNode<KeyNode extends AnyBaseNode, ValueNode extends AnyBaseNode> extends BaseNode<'record'> {
+	readonly _type: Record<Infer<KeyNode>, Infer<ValueNode>>
+	key: KeyNode
+	value: ValueNode
 }
-export type AnyRecordNode = RecordNode<any>
-export const record = <TNode extends AnyBaseNode>(node: TNode): RecordNode<TNode> => {
+export type AnyRecordNode = RecordNode<any, any>
+export const record = <KeyNode extends AnyRecordKeyNode, ValueNode extends AnyBaseNode>(
+	key: KeyNode,
+	value: ValueNode,
+): RecordNode<KeyNode, ValueNode> => {
 	return defineNode({
 		typeName: 'record',
-		type: node,
+		key,
+		value,
 	})
 }
 

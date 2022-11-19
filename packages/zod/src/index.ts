@@ -1,3 +1,3 @@
-export { fromZodSchema } from './from'
-export { toZodSchema } from './schema'
-export { toZodString } from './string'
+export { fromZodSchema } from './from-schema'
+export { toZodSchema } from './to-schema'
+export { toZodString } from './to-string'

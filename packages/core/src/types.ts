@@ -15,22 +15,22 @@ import {
 	BigIntNode,
 	BooleanNode,
 	DateNode,
+	NullNode,
 	NumberNode,
 	RegexpNode,
 	StringNode,
+	UndefinedNode,
 	UnknownNode,
 } from './primitive'
 
-const defaults = {
-	isRequired: true,
-} as const
+const defaults = {} as const
 type Defaults = typeof defaults
 
 export interface BaseNode<TypeName extends string> {
 	readonly _type: any
 	typeName: TypeName
-	isRequired: boolean
 }
+
 export type AnyBaseNode = BaseNode<any>
 
 type AnyBasicNode =
@@ -45,14 +45,14 @@ export const defineNode = <
 	_type: undefined as unknown,
 })
 
-type HandleIsRequired<TNode extends AnyBaseNode> = TNode['isRequired'] extends true ? TNode['_type']
-	: TNode['_type'] | undefined
-export type Infer<TNode extends AnyBaseNode> = HandleIsRequired<TNode>
+export type Infer<TNode extends AnyBaseNode> = TNode['_type']
 
 export type AnyNode =
 	| StringNode
 	| NumberNode
 	| BooleanNode
+	| NullNode
+	| UndefinedNode
 	| AnyLiteralNode
 	| UnknownNode
 	| AnyTypeNode

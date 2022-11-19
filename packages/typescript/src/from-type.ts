@@ -2,6 +2,7 @@ import {
 	any,
 	AnyBaseNode,
 	AnyNode,
+	AnyRecordKeyNode,
 	array,
 	bigint,
 	boolean,
@@ -95,13 +96,9 @@ export const fromType = (type: ts.Type, locationNode: ts.Node, checker: ts.TypeC
 		return bigint()
 	}
 
-	type A = [string, number?]
-	type B = {
-		[key in keyof A]: A[key]
-	}
 	if (hasFlag(type, ts.TypeFlags.Object)) {
 		const objectType = type as ObjectType
-		console.log(checker.typeToString(type))
+
 		if (hasObjectFlag(objectType, ts.ObjectFlags.Reference)) {
 			const { target } = (type as ts.TypeReference)
 
@@ -148,7 +145,6 @@ export const fromType = (type: ts.Type, locationNode: ts.Node, checker: ts.TypeC
 
 	const symbol = type.getSymbol()
 	if (symbol) {
-		// console.log(symbol.getName())
 		switch (symbol.name) {
 			case 'Array':
 			case 'ReadonlyArray': {
@@ -168,6 +164,7 @@ export const fromType = (type: ts.Type, locationNode: ts.Node, checker: ts.TypeC
 			case 'Record': {
 				const typeArguments = checker.getTypeArguments(type as ts.TypeReference)
 				return record(
+					fromType(typeArguments[0], locationNode, checker) as AnyRecordKeyNode,
 					fromType(typeArguments[1], locationNode, checker),
 				)
 			}
@@ -226,14 +223,13 @@ const defaultCompilerHost = ts.createCompilerHost({})
 
 const customCompilerHost: ts.CompilerHost = {
 	getSourceFile: (name, languageVersion) => {
-		console.log(`getSourceFile ${name}`)
-
 		return name === filename ? sourceFile : defaultCompilerHost.getSourceFile(
 			name,
 			languageVersion,
 		)
 	},
-	writeFile: (filename, data) => {},
+	// eslint-disable-next-line @typescript-eslint/no-empty-function
+	writeFile: () => {},
 	getDefaultLibFileName: () => 'lib.d.ts',
 	useCaseSensitiveFileNames: () => false,
 	getCanonicalFileName: filename => filename,
