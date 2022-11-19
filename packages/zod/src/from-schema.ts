@@ -60,8 +60,9 @@ export const fromZodSchema = <TZodType extends z.ZodTypeAny>(schema: TZodType): 
 
 		case ZodFirstPartyTypeKind.ZodObject: {
 			const propertySchemas = Object.fromEntries(
-				Object.entries(schema._def.shape).map(([key, value]) => [key, fromZodSchema(value as ZodTypeAny)]),
+				Object.entries(schema._def.shape()).map(([key, value]) => [key, fromZodSchema(value as ZodTypeAny)]),
 			)
+
 			return object(propertySchemas)
 		}
 

@@ -39,11 +39,10 @@ type AnyBasicNode =
 
 export const defineNode = <
 	T extends AnyBasicNode,
->(node: T): T & Defaults & { _type: any } => ({
+>(node: T) => ({
 	...defaults,
 	...node,
-	_type: undefined as unknown,
-})
+} as T & Defaults & { _type: any })
 
 export type Infer<TNode extends AnyBaseNode> = TNode['_type']
 

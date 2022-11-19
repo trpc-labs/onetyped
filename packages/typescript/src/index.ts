@@ -1,2 +1,2 @@
 export { fromType } from './from-type'
-export { toTypeNode } from './to-type-node'
+export { printNode, toTypeNode } from './to-type-node'

@@ -118,27 +118,32 @@ export const fromType = (type: ts.Type, locationNode: ts.Node, checker: ts.TypeC
 			}
 		}
 
+		const propertyEntries = type.getProperties().map((
+			property,
+		) => {
+			const propertyType = checker.getTypeOfSymbolAtLocation(property, locationNode)
+			let node = fromType(propertyType, locationNode, checker)
+			if (hasSymbolFlag(property, ts.SymbolFlags.Optional)) {
+				node = optional(node)
+			}
+			return [property.name, node]
+		})
+
 		const callSignatures = type.getCallSignatures()
 
 		const functionNode = getNodeFromCallSignatures(callSignatures, locationNode, checker)
 
-		const propertySchemas = Object.fromEntries(
-			type.getProperties().map((
-				property,
-			) => {
-				const propertyType = checker.getTypeOfSymbolAtLocation(property, locationNode)
-				let node = fromType(propertyType, locationNode, checker)
-				if (hasSymbolFlag(property, ts.SymbolFlags.Optional)) {
-					node = optional(node)
-				}
-				return [property.name, node]
-			}),
-		)
-		const objectNode = object(propertySchemas)
-
 		if (functionNode) {
-			return intersection([functionNode, objectNode])
+			if (propertyEntries.length === 0) {
+				return functionNode
+			}
+
+			const propertySchemas = Object.fromEntries(propertyEntries)
+			return intersection([functionNode, object(propertySchemas)])
 		}
+
+		const propertySchemas = Object.fromEntries(propertyEntries)
+		const objectNode = object(propertySchemas)
 
 		return objectNode
 	}
@@ -199,64 +204,3 @@ export const fromType = (type: ts.Type, locationNode: ts.Node, checker: ts.TypeC
 
 	throw new Error(`Unknown type: ${checker.typeToString(type)}`)
 }
-
-const filename = 'test.ts'
-const code = `
-interface User {
-	name: string & { length: number }
-	age?: number
-	func: (a: number, b: string) => string
-	role: 'admin' | 'user'
-	t: [string, number, boolean?]
-	
-	(a: number, b: string) => string
-}
-const user = undefined as unknown as User`
-
-const sourceFile = ts.createSourceFile(
-	filename,
-	code,
-	ts.ScriptTarget.Latest,
-)
-
-const defaultCompilerHost = ts.createCompilerHost({})
-
-const customCompilerHost: ts.CompilerHost = {
-	getSourceFile: (name, languageVersion) => {
-		return name === filename ? sourceFile : defaultCompilerHost.getSourceFile(
-			name,
-			languageVersion,
-		)
-	},
-	// eslint-disable-next-line @typescript-eslint/no-empty-function
-	writeFile: () => {},
-	getDefaultLibFileName: () => 'lib.d.ts',
-	useCaseSensitiveFileNames: () => false,
-	getCanonicalFileName: filename => filename,
-	getCurrentDirectory: () => '',
-	getNewLine: () => '\n',
-	getDirectories: () => [],
-	fileExists: () => true,
-	readFile: () => '',
-}
-
-const program = ts.createProgram([filename], {}, customCompilerHost)
-
-const typeChecker = program.getTypeChecker()
-
-function recursivelyPrintVariableDeclarations(
-	node: ts.Node,
-	sourceFile: ts.SourceFile,
-) {
-	if (node.kind === ts.SyntaxKind.VariableDeclaration) {
-		const type = typeChecker.getTypeAtLocation(node)
-
-		const ourNode = fromType(type, sourceFile, typeChecker)
-
-		console.log(JSON.stringify(ourNode, null, 2))
-	}
-
-	node.forEachChild(child => recursivelyPrintVariableDeclarations(child, sourceFile))
-}
-
-recursivelyPrintVariableDeclarations(sourceFile, sourceFile)
