@@ -29,7 +29,7 @@ export const toZodString = (node: AnyNode): string => {
 			return createZodMethod('any')
 		}
 		case 'regexp': {
-			return createZodMethod('custom', '(data) => data instanceof RegExp')
+			return createZodMethod('instanceof', 'RegExp')
 		}
 		case 'bigint': {
 			return createZodMethod('bigint')

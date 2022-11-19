@@ -30,7 +30,7 @@ export const toZodSchema = <TNode extends AnyNode>(node: TNode): ToZodSchema<TNo
 			return z.any()
 		}
 		case 'regexp': {
-			return z.custom<RegExp>((data) => data instanceof RegExp)
+			return z.instanceof(RegExp)
 		}
 		case 'bigint': {
 			return z.bigint()

@@ -11,13 +11,16 @@ import {
 	intersection,
 	literal,
 	map,
+	nullType,
 	number,
 	object,
 	optional,
 	record,
+	regexp,
 	set,
 	string,
 	tuple,
+	undefinedType,
 	union,
 	unknown,
 } from '@onetyped/core'
@@ -75,6 +78,14 @@ export const fromType = (type: ts.Type, locationNode: ts.Node, checker: ts.TypeC
 		return boolean()
 	}
 
+	if (hasFlag(type, ts.TypeFlags.Null)) {
+		return nullType()
+	}
+
+	if (hasFlag(type, ts.TypeFlags.Undefined)) {
+		return undefinedType()
+	}
+
 	if (hasFlag(type, ts.TypeFlags.Unknown)) {
 		return unknown()
 	}
@@ -94,6 +105,46 @@ export const fromType = (type: ts.Type, locationNode: ts.Node, checker: ts.TypeC
 
 	if (hasFlag(type, ts.TypeFlags.BigInt)) {
 		return bigint()
+	}
+
+	const symbol = type.getSymbol()
+	if (symbol) {
+		switch (symbol.name) {
+			case 'Array':
+			case 'ReadonlyArray': {
+				const typeArguments = checker.getTypeArguments(type as ts.TypeReference)
+				return array(fromType(typeArguments[0], locationNode, checker))
+			}
+
+			case 'Date': {
+				return date()
+			}
+
+			case 'RegExp': {
+				return regexp()
+			}
+
+			case 'Set': {
+				const typeArguments = checker.getTypeArguments(type as ts.TypeReference)
+				return set(fromType(typeArguments[0], locationNode, checker))
+			}
+
+			case 'Record': {
+				const typeArguments = checker.getTypeArguments(type as ts.TypeReference)
+				return record(
+					fromType(typeArguments[0], locationNode, checker) as AnyRecordKeyNode,
+					fromType(typeArguments[1], locationNode, checker),
+				)
+			}
+
+			case 'Map': {
+				const typeArguments = checker.getTypeArguments(type as ts.TypeReference)
+				return map(
+					fromType(typeArguments[0], locationNode, checker),
+					fromType(typeArguments[1], locationNode, checker),
+				)
+			}
+		}
 	}
 
 	if (hasFlag(type, ts.TypeFlags.Object)) {
@@ -118,6 +169,18 @@ export const fromType = (type: ts.Type, locationNode: ts.Node, checker: ts.TypeC
 			}
 		}
 
+		const nodes: AnyNode[] = []
+
+		const stringIndexType = objectType.getStringIndexType()
+		if (stringIndexType) {
+			nodes.push(record(string(), fromType(stringIndexType, locationNode, checker)))
+		}
+
+		const numberIndexType = objectType.getNumberIndexType()
+		if (numberIndexType) {
+			nodes.push(record(number(), fromType(numberIndexType, locationNode, checker)))
+		}
+
 		const propertyEntries = type.getProperties().map((
 			property,
 		) => {
@@ -134,56 +197,19 @@ export const fromType = (type: ts.Type, locationNode: ts.Node, checker: ts.TypeC
 		const functionNode = getNodeFromCallSignatures(callSignatures, locationNode, checker)
 
 		if (functionNode) {
-			if (propertyEntries.length === 0) {
-				return functionNode
-			}
+			nodes.push(functionNode)
+		}
 
+		if (propertyEntries.length > 0) {
 			const propertySchemas = Object.fromEntries(propertyEntries)
-			return intersection([functionNode, object(propertySchemas)])
+			nodes.push(object(propertySchemas))
 		}
 
-		const propertySchemas = Object.fromEntries(propertyEntries)
-		const objectNode = object(propertySchemas)
-
-		return objectNode
-	}
-
-	const symbol = type.getSymbol()
-	if (symbol) {
-		switch (symbol.name) {
-			case 'Array':
-			case 'ReadonlyArray': {
-				const typeArguments = checker.getTypeArguments(type as ts.TypeReference)
-				return array(fromType(typeArguments[0], locationNode, checker))
-			}
-
-			case 'Date': {
-				return date()
-			}
-
-			case 'Set': {
-				const typeArguments = checker.getTypeArguments(type as ts.TypeReference)
-				return set(fromType(typeArguments[0], locationNode, checker))
-			}
-
-			case 'Record': {
-				const typeArguments = checker.getTypeArguments(type as ts.TypeReference)
-				return record(
-					fromType(typeArguments[0], locationNode, checker) as AnyRecordKeyNode,
-					fromType(typeArguments[1], locationNode, checker),
-				)
-			}
-
-			case 'Map': {
-				const typeArguments = checker.getTypeArguments(type as ts.TypeReference)
-				return map(
-					fromType(typeArguments[0], locationNode, checker),
-					fromType(typeArguments[1], locationNode, checker),
-				)
-			}
+		if (nodes.length === 1) {
+			return nodes[0]
 		}
 
-		throw new Error(`Unknown symbol name: ${symbol.name}`)
+		return intersection(nodes as [AnyNode, ...AnyNode[]])
 	}
 
 	if (type.isUnion()) {

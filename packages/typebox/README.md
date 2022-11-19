@@ -2,6 +2,9 @@
 
 onetyped integration for [TypeBox](https://github.com/sinclairzx81/typebox)
 
+> **Warning**
+> TypeBox is severely limited by its requirement to support JSON schema. This package will likewise not work as expected. It probably never will.
+
 ## Usage
 
 ```ts

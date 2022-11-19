@@ -11,6 +11,7 @@ import {
 	literal,
 	map,
 	nullable,
+	nullType,
 	number,
 	object,
 	optional,
@@ -18,6 +19,7 @@ import {
 	set,
 	string,
 	tuple,
+	undefinedType,
 	union,
 	unknown,
 } from '@onetyped/core'
@@ -36,6 +38,14 @@ export const fromZodSchema = <TZodType extends z.ZodTypeAny>(schema: TZodType): 
 
 		case ZodFirstPartyTypeKind.ZodBoolean: {
 			return boolean()
+		}
+
+		case ZodFirstPartyTypeKind.ZodNull: {
+			return nullType()
+		}
+
+		case ZodFirstPartyTypeKind.ZodUndefined: {
+			return undefinedType()
 		}
 
 		case ZodFirstPartyTypeKind.ZodUnknown: {
