@@ -12,6 +12,7 @@
 		"test": "vitest"
 	},
 	"devDependencies": {
+		"@changesets/cli": "2.25.2",
 		"@sachinraja/eslint-config": "0.2.0",
 		"@types/node": "18.11.9",
 		"dprint": "0.32.2",
