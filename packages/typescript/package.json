@@ -1,6 +1,6 @@
 {
 	"name": "@onetyped/typescript",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"type": "module",
 	"description": "onetyped TypeScript integration",
 	"publishConfig": {
@@ -25,7 +25,7 @@
 	"types": "dist/index.d.ts",
 	"exports": {
 		"./package.json": "./package.json",
-		"./.": {
+		".": {
 			"import": "./dist/index.js",
 			"default": "./dist/index.cjs"
 		}
@@ -38,10 +38,11 @@
 		"type-check": "tsc"
 	},
 	"sideEffects": false,
-	"dependencies": {
+	"devDependencies": {
 		"@onetyped/core": "workspace:*"
 	},
 	"peerDependencies": {
+		"@onetyped/core": "*",
 		"typescript": "^4"
 	}
 }

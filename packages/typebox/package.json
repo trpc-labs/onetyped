@@ -1,6 +1,6 @@
 {
 	"name": "@onetyped/typebox",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"type": "module",
 	"description": "onetyped TypeBox integration",
 	"publishConfig": {
@@ -25,7 +25,7 @@
 	"types": "dist/index.d.ts",
 	"exports": {
 		"./package.json": "./package.json",
-		"./.": {
+		".": {
 			"import": "./dist/index.js",
 			"default": "./dist/index.cjs"
 		}
@@ -38,13 +38,12 @@
 		"type-check": "tsc"
 	},
 	"sideEffects": false,
-	"dependencies": {
-		"@onetyped/core": "workspace:*"
-	},
 	"devDependencies": {
+		"@onetyped/core": "workspace:*",
 		"@sinclair/typebox": "0.25.8"
 	},
 	"peerDependencies": {
+		"@onetyped/core": "*",
 		"@sinclair/typebox": "^0.25.8"
 	},
 	"peerDependenciesMeta": {

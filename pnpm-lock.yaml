@@ -35,24 +35,22 @@ importers:
     specifiers:
       '@onetyped/core': workspace:*
       '@sinclair/typebox': 0.25.8
-    dependencies:
-      '@onetyped/core': link:../core
     devDependencies:
+      '@onetyped/core': link:../core
       '@sinclair/typebox': 0.25.8
 
   packages/typescript:
     specifiers:
       '@onetyped/core': workspace:*
-    dependencies:
+    devDependencies:
       '@onetyped/core': link:../core
 
   packages/zod:
     specifiers:
       '@onetyped/core': workspace:*
       zod: 3.19.1
-    dependencies:
-      '@onetyped/core': link:../core
     devDependencies:
+      '@onetyped/core': link:../core
       zod: 3.19.1
 
 packages:
