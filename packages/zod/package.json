@@ -35,6 +35,7 @@
 	],
 	"scripts": {
 		"build": "tsup",
+		"prepublishOnly": "pnpm build",
 		"type-check": "tsc"
 	},
 	"sideEffects": false,
