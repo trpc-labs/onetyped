@@ -1,5 +1,13 @@
 # @onetyped/typescript
 
+## 0.0.4
+
+### Patch Changes
+
+- 4306b6b: fix typescript
+- Updated dependencies [4306b6b]
+  - @onetyped/core@0.0.2
+
 ## 0.0.3
 
 ### Patch Changes
