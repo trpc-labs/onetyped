@@ -4,7 +4,11 @@ one schema to rule them all
 
 ## What is it?
 
-onetyped is a universal way to describe data. I built this to painlessly convert from and between different formats primarily for use in dev tools.
+onetyped is a universal way to describe data. I built this to painlessly convert to and from different formats primarily for use in dev tools.
+
+## Why not Zod or (insert validation framework here)?
+
+Zod is great, but it's not universal. It's primary use case is for validation and that shows. onetyped is not a validation framework, it's a data description framework. It optimizes for traversing your schema's shape and converting it to different formats.
 
 ## Integrations
 
