@@ -1,6 +1,6 @@
 import {
 	any,
-	AnyBaseNode,
+	AnyFunctionNode,
 	AnyNode,
 	AnyRecordKeyNode,
 	array,
@@ -22,9 +22,10 @@ import {
 	tuple,
 	undefinedType,
 	union,
+	unionIfMultiple,
 	unknown,
 } from '@onetyped/core'
-import ts, { ObjectType, TypeChecker } from 'typescript'
+import ts, { ElementFlags, ObjectType, TupleType, TypeChecker } from 'typescript'
 
 const hasFlag = (type: ts.Type, flag: ts.TypeFlags): boolean => {
 	return (type.flags & flag) === flag
@@ -51,21 +52,20 @@ const getNodeFromCallSignatures = (
 			})
 			const returnType = checker.getReturnTypeOfSignature(signature)
 
-			return func({
-				arguments: parameters,
+			const functionNode: AnyFunctionNode = func({
+				arguments: parameters as [AnyNode, ...AnyNode[]],
 				return: fromType(returnType, locationNode, checker),
 			})
+
+			return functionNode
 		}) as [AnyNode, ...AnyNode[]]
 
-		if (nodeCallSignatures.length === 1) {
-			return nodeCallSignatures[0]
-		}
-
-		return union(nodeCallSignatures)
+		return unionIfMultiple(nodeCallSignatures)
 	}
 }
 
-export const fromType = (type: ts.Type, locationNode: ts.Node, checker: ts.TypeChecker): AnyBaseNode => {
+export const fromType = (type: ts.Type, locationNode: ts.Node, checker: ts.TypeChecker): AnyNode => {
+	console.log(checker.typeToString(type))
 	if (hasFlag(type, ts.TypeFlags.String)) {
 		return string()
 	}
@@ -129,14 +129,6 @@ export const fromType = (type: ts.Type, locationNode: ts.Node, checker: ts.TypeC
 				return set(fromType(typeArguments[0], locationNode, checker))
 			}
 
-			case 'Record': {
-				const typeArguments = checker.getTypeArguments(type as ts.TypeReference)
-				return record(
-					fromType(typeArguments[0], locationNode, checker) as AnyRecordKeyNode,
-					fromType(typeArguments[1], locationNode, checker),
-				)
-			}
-
 			case 'Map': {
 				const typeArguments = checker.getTypeArguments(type as ts.TypeReference)
 				return map(
@@ -154,31 +146,43 @@ export const fromType = (type: ts.Type, locationNode: ts.Node, checker: ts.TypeC
 			const { target } = (type as ts.TypeReference)
 
 			if (hasObjectFlag(target, ts.ObjectFlags.Tuple)) {
-				const tupleTypes = type.getProperties().map((property) => {
-					if (property.name === 'length') return
+				const tupleType = type as TupleType
+				const target = tupleType.target as ts.TupleType
 
-					const propertyType = checker.getTypeOfSymbolAtLocation(property, locationNode)
-					let node = fromType(propertyType, locationNode, checker)
-					if (hasSymbolFlag(property, ts.SymbolFlags.Optional)) {
-						node = optional(node)
+				const tupleTypes = tupleType.typeArguments?.map((typeArgument, index) => {
+					const elementFlags = target.elementFlags[index]
+
+					const node: AnyNode = fromType(typeArgument, locationNode, checker)
+					if (elementFlags & ElementFlags.Optional) {
+						return optional(node)
 					}
 
 					return node
-				}).filter(Boolean) as [AnyNode, ...AnyNode[]]
-				return tuple(tupleTypes)
+				})
+					?? []
+
+				return tuple(tupleTypes as [AnyNode, ...AnyNode[]])
 			}
 		}
 
 		const nodes: AnyNode[] = []
 
+		const keyTypes: AnyRecordKeyNode[] = []
+		let valueType: AnyNode | undefined
 		const stringIndexType = objectType.getStringIndexType()
 		if (stringIndexType) {
-			nodes.push(record(string(), fromType(stringIndexType, locationNode, checker)))
+			keyTypes.push(string())
+			valueType = fromType(stringIndexType, locationNode, checker)
 		}
 
 		const numberIndexType = objectType.getNumberIndexType()
 		if (numberIndexType) {
-			nodes.push(record(number(), fromType(numberIndexType, locationNode, checker)))
+			keyTypes.push(number())
+			if (!valueType) valueType = fromType(numberIndexType, locationNode, checker)
+		}
+
+		if (keyTypes.length > 0 && valueType) {
+			nodes.push(record(unionIfMultiple(keyTypes as [AnyRecordKeyNode, ...AnyRecordKeyNode[]]), valueType))
 		}
 
 		const propertyEntries = type.getProperties().map((

@@ -1,4 +1,4 @@
-import { AnyObjectNode } from './complex'
+import { AnyObjectNode, union } from './complex'
 import { Primitive } from './type-utils'
 import { AnyBaseNode, AnyNode } from './types'
 
@@ -37,6 +37,14 @@ export const isNodeOptional = (node: AnyNode) => {
 	}
 
 	return false
+}
+
+export const unionIfMultiple = <TNode extends AnyBaseNode>(nodes: [TNode, ...TNode[]]) => {
+	if (nodes.length === 1) {
+		return nodes[0]
+	}
+
+	return union(nodes)
 }
 
 export class UnsupportedError extends Error {

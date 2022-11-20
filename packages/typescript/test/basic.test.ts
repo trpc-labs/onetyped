@@ -1,70 +1,23 @@
-import { AnyBaseNode, object, string } from '@onetyped/core'
-import ts from 'typescript'
+import { number, object, record, string, union } from '@onetyped/core'
+import { createProject } from '@ts-morph/bootstrap'
+import { isTypeAliasDeclaration, TypeAliasDeclaration } from 'typescript'
 import { expect, test } from 'vitest'
 import { fromType, printNode, toTypeNode } from '../src'
 
-const testFromType = (type: string) => {
-	const filename = 'test.ts'
-	const code = `type T = ${type}
-const t = undefined as unknown as T`
-
-	const sourceFile = ts.createSourceFile(
-		filename,
-		code,
-		ts.ScriptTarget.Latest,
-	)
-
-	const defaultCompilerHost = ts.createCompilerHost({})
-
-	const customCompilerHost: ts.CompilerHost = {
-		getSourceFile: (name, languageVersion) => {
-			return name === filename ? sourceFile : defaultCompilerHost.getSourceFile(
-				name,
-				languageVersion,
-			)
-		},
-		// eslint-disable-next-line @typescript-eslint/no-empty-function
-		writeFile: () => {},
-		getDefaultLibFileName: () => 'lib.d.ts',
-		useCaseSensitiveFileNames: () => false,
-		getCanonicalFileName: filename => filename,
-		getCurrentDirectory: () => '',
-		getNewLine: () => '\n',
-		getDirectories: () => [],
-		fileExists: () => true,
-		readFile: () => '',
-	}
-
-	const program = ts.createProgram([filename], {}, customCompilerHost)
-
+const testFromType = async (type: string) => {
+	const project = await createProject({ useInMemoryFileSystem: true })
+	const sourceFile = project.createSourceFile('test.ts', `type T = ${type}`)
+	const program = project.createProgram()
 	const typeChecker = program.getTypeChecker()
 
-	let onetypedNode: AnyBaseNode | undefined
+	const typeAlias = sourceFile.statements.find((statement) => isTypeAliasDeclaration(statement)) as TypeAliasDeclaration
+	const testType = typeChecker.getTypeAtLocation(typeAlias)
 
-	const recursivelyPrintVariableDeclarations = (
-		tsNode: ts.Node,
-		sourceFile: ts.SourceFile,
-	) => {
-		if (onetypedNode) return
-		if (tsNode.kind === ts.SyntaxKind.VariableDeclaration) {
-			const type = typeChecker.getTypeAtLocation(tsNode)
-
-			onetypedNode = fromType(type, sourceFile, typeChecker)
-
-			return
-		}
-
-		tsNode.forEachChild(child => recursivelyPrintVariableDeclarations(child, sourceFile))
-	}
-
-	recursivelyPrintVariableDeclarations(sourceFile, sourceFile)
-
-	if (!onetypedNode) throw new Error('No variable declaration found')
-	return onetypedNode
+	return fromType(testType, sourceFile, typeChecker)
 }
 
-test('fromType', () => {
-	const onetypedNode = testFromType(`{
+test('fromType', async () => {
+	const node = await testFromType(`{
     name: string & { length: number }
     age?: number
     func: (a: number, b: string) => string
@@ -73,7 +26,7 @@ test('fromType', () => {
     d: (a: number, b: string) => string
   }`)
 
-	expect(onetypedNode).toMatchInlineSnapshot(`
+	expect(node).toMatchInlineSnapshot(`
 		{
 		  "shape": {
 		    "age": {
@@ -186,9 +139,42 @@ test('fromType', () => {
 	`)
 })
 
+test('fromType record', async () => {
+	const node = await testFromType(`{ name:string } & Record<string, string>`)
+
+	expect(node).toMatchInlineSnapshot(`
+		{
+		  "typeName": "intersection",
+		  "types": [
+		    {
+		      "shape": {
+		        "name": {
+		          "type": "string",
+		          "typeName": "string",
+		        },
+		      },
+		      "typeName": "object",
+		    },
+		    {
+		      "key": {
+		        "type": "string",
+		        "typeName": "string",
+		      },
+		      "typeName": "record",
+		      "value": {
+		        "type": "string",
+		        "typeName": "string",
+		      },
+		    },
+		  ],
+		}
+	`)
+})
+
 test('toTypeNode', () => {
 	const personSchema = object({
 		name: string(),
+		items: record(union([string(), number()]), number()),
 	})
 
 	const typeNode = toTypeNode(personSchema)
@@ -196,6 +182,7 @@ test('toTypeNode', () => {
 	expect(printNode(typeNode)).toMatchInlineSnapshot(`
 		"{
 		    name: string;
+		    items: Record<string | number, number>;
 		}"
 	`)
 })

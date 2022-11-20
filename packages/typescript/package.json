@@ -40,7 +40,8 @@
 	},
 	"sideEffects": false,
 	"devDependencies": {
-		"@onetyped/core": "workspace:*"
+		"@onetyped/core": "workspace:*",
+		"@ts-morph/bootstrap": "0.18.0"
 	},
 	"peerDependencies": {
 		"@onetyped/core": "*",

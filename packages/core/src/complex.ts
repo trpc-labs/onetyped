@@ -1,5 +1,4 @@
-import { LiteralNode, NumberNode, StringNode } from './primitive'
-import { Narrow, Simplify } from './type-utils'
+import { Simplify } from './type-utils'
 import { AnyBaseNode, BaseNode, defineNode, Infer, InferNodeArray } from './types'
 
 export type AnyObjectShape = { [key: string]: AnyBaseNode }
@@ -50,7 +49,10 @@ export const set = <TNode extends AnyBaseNode>(type: TNode): SetNode<TNode> => {
 	})
 }
 
-export type AnyRecordKeyNode = StringNode | NumberNode | LiteralNode<string | number>
+export interface AnyRecordKeyNode extends AnyBaseNode {
+	readonly _type: string | number
+}
+
 export interface RecordNode<KeyNode extends AnyBaseNode, ValueNode extends AnyBaseNode> extends BaseNode<'record'> {
 	readonly _type: Record<Infer<KeyNode>, Infer<ValueNode>>
 	key: KeyNode
@@ -99,16 +101,17 @@ export interface FunctionNode<TArguments extends AnyBaseNode[], TReturn extends 
 export type AnyFunctionNode = FunctionNode<any[], any>
 // eslint-disable-next-line unicorn/prevent-abbreviations
 export const func = <
+	TReturn extends AnyBaseNode,
+	TArgument extends AnyBaseNode,
 	TArguments extends AnyBaseNode[] = [],
-	TReturn extends AnyBaseNode | undefined = undefined,
 >(
-	options: { arguments?: Narrow<TArguments>; return?: TReturn } = {},
-): FunctionNode<TArguments, TReturn> => {
+	options: { arguments?: [TArgument, ...TArguments]; return?: TReturn } = {},
+): FunctionNode<[TArgument, ...TArguments], TReturn> => {
 	const arguments_ = options.arguments ?? []
 
 	return defineNode({
 		typeName: 'function',
-		arguments: arguments_ as TArguments,
+		arguments: arguments_ as [TArgument, ...TArguments],
 		return: options.return as TReturn,
 	})
 }
