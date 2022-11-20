@@ -8,7 +8,7 @@ onetyped is a universal way to describe data. I built this to painlessly convert
 
 ## Why not Zod or (insert validation framework here)?
 
-Zod is great, but it's not universal. It's primary use case is for validation and that shows. onetyped is not a validation framework, it's a data description framework. It optimizes for traversing your schema's shape and converting it to different formats.
+Zod is great, but its primary use case is for validation and that shows. onetyped is not a validation framework, it's a data description framework. It optimizes for traversing your schema's shape and converting it to different formats and back.
 
 ## Integrations
 
