@@ -1,5 +1,11 @@
 # @onetyped/typescript
 
+## 0.0.5
+
+### Patch Changes
+
+- d8f15c9: fix typescript imports
+
 ## 0.0.4
 
 ### Patch Changes
