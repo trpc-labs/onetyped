@@ -25,7 +25,7 @@ import {
 	unionIfMultiple,
 	unknown,
 } from '@onetyped/core'
-import ts, { ElementFlags, ObjectType, TupleType, TypeChecker } from 'typescript'
+import ts from 'typescript'
 
 const hasFlag = (type: ts.Type, flag: ts.TypeFlags): boolean => {
 	return (type.flags & flag) === flag
@@ -42,7 +42,7 @@ const hasObjectFlag = (type: ts.ObjectType, flag: ts.ObjectFlags): boolean => {
 const getNodeFromCallSignatures = (
 	callSignatures: readonly ts.Signature[],
 	locationNode: ts.Node,
-	checker: TypeChecker,
+	checker: ts.TypeChecker,
 ) => {
 	if (callSignatures.length > 0) {
 		const nodeCallSignatures = callSignatures.map((signature) => {
@@ -140,20 +140,20 @@ export const fromType = (type: ts.Type, locationNode: ts.Node, checker: ts.TypeC
 	}
 
 	if (hasFlag(type, ts.TypeFlags.Object)) {
-		const objectType = type as ObjectType
+		const objectType = type as ts.ObjectType
 
 		if (hasObjectFlag(objectType, ts.ObjectFlags.Reference)) {
 			const { target } = (type as ts.TypeReference)
 
 			if (hasObjectFlag(target, ts.ObjectFlags.Tuple)) {
-				const tupleType = type as TupleType
+				const tupleType = type as ts.TupleType
 				const target = tupleType.target as ts.TupleType
 
 				const tupleTypes = tupleType.typeArguments?.map((typeArgument, index) => {
 					const elementFlags = target.elementFlags[index]
 
 					const node: AnyNode = fromType(typeArgument, locationNode, checker)
-					if (elementFlags & ElementFlags.Optional) {
+					if (elementFlags & ts.ElementFlags.Optional) {
 						return optional(node)
 					}
 
