@@ -26,6 +26,9 @@ export const toZodSchema = <TNode extends AnyNode>(node: TNode): ToZodSchema<TNo
 		case 'unknown': {
 			return z.unknown()
 		}
+		case 'void': {
+			return z.void()
+		}
 		case 'any': {
 			return z.any()
 		}

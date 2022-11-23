@@ -1,25 +1,23 @@
-import { number, object, record, string, union } from "@onetyped/core";
-import { createProject } from "@ts-morph/bootstrap";
-import { isTypeAliasDeclaration, TypeAliasDeclaration } from "typescript";
-import { expect, test } from "vitest";
-import { fromType, printNode, toTypeNode } from "../src";
+import { number, object, record, string, union } from '@onetyped/core'
+import { createProject } from '@ts-morph/bootstrap'
+import { isTypeAliasDeclaration, TypeAliasDeclaration } from 'typescript'
+import { expect, test } from 'vitest'
+import { fromType, printNode, toTypeNode } from '../src'
 
 const testFromType = async (type: string) => {
-  const project = await createProject({ useInMemoryFileSystem: true });
-  const sourceFile = project.createSourceFile("test.ts", `type T = ${type}`);
-  const program = project.createProgram();
-  const typeChecker = program.getTypeChecker();
+	const project = await createProject({ useInMemoryFileSystem: true })
+	const sourceFile = project.createSourceFile('test.ts', `type T = ${type}`)
+	const program = project.createProgram()
+	const typeChecker = program.getTypeChecker()
 
-  const typeAlias = sourceFile.statements.find((statement) =>
-    isTypeAliasDeclaration(statement),
-  ) as TypeAliasDeclaration;
-  const testType = typeChecker.getTypeAtLocation(typeAlias);
+	const typeAlias = sourceFile.statements.find((statement) => isTypeAliasDeclaration(statement)) as TypeAliasDeclaration
+	const testType = typeChecker.getTypeAtLocation(typeAlias)
 
-  return fromType(testType, sourceFile, typeChecker);
-};
+	return fromType(testType, sourceFile, typeChecker)
+}
 
-test("fromType", async () => {
-  const node = await testFromType(`{
+test('fromType', async () => {
+	const node = await testFromType(`{
     name: string & { length: number }
     age?: number
     func: (a: number, b: string) => string
@@ -29,9 +27,9 @@ test("fromType", async () => {
 		literal_string: "literal_string" as const,
 		literal_true: true as const,
 		literal_false: false as const,
-  }`);
+  }`)
 
-  expect(node).toMatchInlineSnapshot(`
+	expect(node).toMatchInlineSnapshot(`
     {
       "shape": {
         "age": {
@@ -145,13 +143,13 @@ test("fromType", async () => {
       },
       "typeName": "object",
     }
-  `);
-});
+  `)
+})
 
-test("fromType record", async () => {
-  const node = await testFromType(`{ name:string } & Record<string, string>`);
+test('fromType record', async () => {
+	const node = await testFromType(`{ name:string } & Record<string, string>`)
 
-  expect(node).toMatchInlineSnapshot(`
+	expect(node).toMatchInlineSnapshot(`
     {
       "typeName": "intersection",
       "types": [
@@ -177,33 +175,33 @@ test("fromType record", async () => {
         },
       ],
     }
-  `);
-});
+  `)
+})
 
-test("toTypeNode", () => {
-  const personSchema = object({
-    name: string(),
-    items: record(union([string(), number()]), number()),
-  });
+test('toTypeNode', () => {
+	const personSchema = object({
+		name: string(),
+		items: record(union([string(), number()]), number()),
+	})
 
-  const typeNode = toTypeNode(personSchema);
+	const typeNode = toTypeNode(personSchema)
 
-  expect(printNode(typeNode)).toMatchInlineSnapshot(`
+	expect(printNode(typeNode)).toMatchInlineSnapshot(`
     "{
         name: string;
         items: Record<string | number, number>;
     }"
-  `);
-});
+  `)
+})
 
-test("fromType literal", async () => {
-  const node = await testFromType(`{
+test('fromType literal', async () => {
+	const node = await testFromType(`{
 		literal_true: true,
 		literal_false: false,
 		literal_void: void,
-  }`);
+  }`)
 
-  expect(node).toMatchInlineSnapshot(`
+	expect(node).toMatchInlineSnapshot(`
     {
       "shape": {
         "literal_false": {
@@ -221,5 +219,5 @@ test("fromType literal", async () => {
       },
       "typeName": "object",
     }
-  `);
-});
+  `)
+})

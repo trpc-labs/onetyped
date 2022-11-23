@@ -51,6 +51,9 @@ export const toTypeNode = <TNode extends AnyNode>(node: TNode): ts.TypeNode => {
 		case 'unknown': {
 			return f.createKeywordTypeNode(ts.SyntaxKind.UnknownKeyword)
 		}
+		case 'void': {
+			return f.createKeywordTypeNode(ts.SyntaxKind.VoidKeyword)
+		}
 		case 'any': {
 			return f.createKeywordTypeNode(ts.SyntaxKind.AnyKeyword)
 		}

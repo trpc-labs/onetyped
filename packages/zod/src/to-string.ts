@@ -25,6 +25,9 @@ export const toZodString = (node: AnyNode): string => {
 		case 'unknown': {
 			return createZodMethod('unknown')
 		}
+		case 'void': {
+			return createZodMethod('void')
+		}
 		case 'any': {
 			return createZodMethod('any')
 		}

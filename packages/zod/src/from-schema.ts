@@ -22,6 +22,7 @@ import {
 	undefinedType,
 	union,
 	unknown,
+	voidType,
 } from '@onetyped/core'
 import { z, ZodFirstPartyTypeKind, ZodTypeAny } from 'zod'
 
@@ -54,6 +55,10 @@ export const fromZodSchema = <TZodType extends z.ZodTypeAny>(schema: TZodType): 
 
 		case ZodFirstPartyTypeKind.ZodLiteral: {
 			return literal(schema._def.value)
+		}
+
+		case ZodFirstPartyTypeKind.ZodVoid: {
+			return voidType()
 		}
 
 		case ZodFirstPartyTypeKind.ZodAny: {

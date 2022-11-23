@@ -26,6 +26,9 @@ export const toTypeBoxString = (node: AnyNode): string => {
 		case 'unknown': {
 			return createTypeBoxMethod('Unknown')
 		}
+		case 'void': {
+			return createTypeBoxMethod('Void')
+		}
 		case 'any': {
 			return createTypeBoxMethod('Any')
 		}
