@@ -1,5 +1,13 @@
 # @onetyped/typebox
 
+## 0.0.3
+
+### Patch Changes
+
+- 0e08dbc: add void type
+- Updated dependencies [0e08dbc]
+  - @onetyped/core@0.0.3
+
 ## 0.0.2
 
 ### Patch Changes

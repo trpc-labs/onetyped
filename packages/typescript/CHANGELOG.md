@@ -1,5 +1,13 @@
 # @onetyped/typescript
 
+## 0.0.6
+
+### Patch Changes
+
+- 0e08dbc: add void type
+- Updated dependencies [0e08dbc]
+  - @onetyped/core@0.0.3
+
 ## 0.0.5
 
 ### Patch Changes
