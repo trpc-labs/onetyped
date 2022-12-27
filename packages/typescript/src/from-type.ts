@@ -7,6 +7,7 @@ import {
 	bigint,
 	boolean,
 	date,
+	definitionReference,
 	func,
 	intersection,
 	literal,
@@ -28,6 +29,8 @@ import {
 } from '@onetyped/core'
 import ts from 'typescript'
 
+type DefinitionMap = Map<string, AnyNode>
+
 const hasFlag = (type: ts.Type, flag: ts.TypeFlags): boolean => {
 	return (type.flags & flag) === flag
 }
@@ -40,10 +43,18 @@ const hasObjectFlag = (type: ts.ObjectType, flag: ts.ObjectFlags): boolean => {
 	return (type.objectFlags & flag) === flag
 }
 
+const hashSymbolAndArguments = (symbol: ts.Symbol, arguments_: readonly ts.Type[], checker: ts.TypeChecker) => {
+	const symbolString = checker.symbolToString(symbol)
+	const typeArgumentStrings = arguments_.map((argument) => checker.typeToString(argument))
+
+	return [symbolString, ...typeArgumentStrings].join('_')
+}
+
 const getNodeFromCallSignatures = (
 	callSignatures: readonly ts.Signature[],
 	locationNode: ts.Node,
 	checker: ts.TypeChecker,
+	definitions: DefinitionMap,
 ) => {
 	if (callSignatures.length > 0) {
 		const nodeCallSignatures = callSignatures.map((signature) => {
@@ -52,13 +63,13 @@ const getNodeFromCallSignatures = (
 					parameter,
 					locationNode,
 				)
-				return fromType(parameterType, locationNode, checker)
+				return fromTypeInternal(parameterType, locationNode, checker, definitions)
 			})
 			const returnType = checker.getReturnTypeOfSignature(signature)
 
 			const functionNode: AnyFunctionNode = func({
 				arguments: parameters as [AnyNode, ...AnyNode[]],
-				return: fromType(returnType, locationNode, checker),
+				return: fromTypeInternal(returnType, locationNode, checker, definitions),
 			})
 
 			return functionNode
@@ -72,7 +83,45 @@ export const fromType = (
 	type: ts.Type,
 	locationNode: ts.Node,
 	checker: ts.TypeChecker,
+) => {
+	const definitions: DefinitionMap = new Map()
+	return { node: fromTypeInternal(type, locationNode, checker, definitions), definitions }
+}
+
+export const fromTypeInternal = (
+	type: ts.Type,
+	locationNode: ts.Node,
+	checker: ts.TypeChecker,
+	definitions: DefinitionMap,
 ): AnyNode => {
+	const aliasSymbol = type.aliasSymbol
+
+	if (aliasSymbol && !(type as unknown as { _mustResolve: boolean })._mustResolve) {
+		const hash = hashSymbolAndArguments(aliasSymbol, type.aliasTypeArguments ?? [], checker)
+		console.log(hash)
+		const symbolNode = definitions.get(hash)
+
+		if (symbolNode) {
+			return definitionReference(hash)
+		}
+
+		// const symbolId = (symbol as unknown as { id: number }).id
+		// set to unknown initially so we don't get stuck in a loop
+		definitions.set(hash, unknown())
+
+		// clone type
+		const newType = Object.assign(Object.create(Object.getPrototypeOf(type)), type)
+
+		newType._mustResolve = true
+
+		definitions.set(
+			hash,
+			fromTypeInternal(newType, locationNode, checker, definitions),
+		)
+
+		return definitionReference(hash)
+	}
+
 	if (hasFlag(type, ts.TypeFlags.String)) {
 		return string()
 	}
@@ -133,7 +182,8 @@ export const fromType = (
 				const typeArguments = checker.getTypeArguments(
 					type as ts.TypeReference,
 				)
-				return array(fromType(typeArguments[0], locationNode, checker))
+
+				return array(fromTypeInternal(typeArguments[0], locationNode, checker, definitions))
 			}
 
 			case 'Date': {
@@ -148,7 +198,7 @@ export const fromType = (
 				const typeArguments = checker.getTypeArguments(
 					type as ts.TypeReference,
 				)
-				return set(fromType(typeArguments[0], locationNode, checker))
+				return set(fromTypeInternal(typeArguments[0], locationNode, checker, definitions))
 			}
 
 			case 'Map': {
@@ -156,8 +206,8 @@ export const fromType = (
 					type as ts.TypeReference,
 				)
 				return map(
-					fromType(typeArguments[0], locationNode, checker),
-					fromType(typeArguments[1], locationNode, checker),
+					fromTypeInternal(typeArguments[0], locationNode, checker, definitions),
+					fromTypeInternal(typeArguments[1], locationNode, checker, definitions),
 				)
 			}
 		}
@@ -176,7 +226,7 @@ export const fromType = (
 				const tupleTypes = tupleType.typeArguments?.map((typeArgument, index) => {
 					const elementFlags = target.elementFlags[index]
 
-					const node: AnyNode = fromType(typeArgument, locationNode, checker)
+					const node: AnyNode = fromTypeInternal(typeArgument, locationNode, checker, definitions)
 					if (elementFlags & ts.ElementFlags.Optional) {
 						return optional(node)
 					}
@@ -195,14 +245,14 @@ export const fromType = (
 		const stringIndexType = objectType.getStringIndexType()
 		if (stringIndexType) {
 			keyTypes.push(string())
-			valueType = fromType(stringIndexType, locationNode, checker)
+			valueType = fromTypeInternal(stringIndexType, locationNode, checker, definitions)
 		}
 
 		const numberIndexType = objectType.getNumberIndexType()
 		if (numberIndexType) {
 			keyTypes.push(number())
 			if (!valueType) {
-				valueType = fromType(numberIndexType, locationNode, checker)
+				valueType = fromTypeInternal(numberIndexType, locationNode, checker, definitions)
 			}
 		}
 
@@ -222,7 +272,9 @@ export const fromType = (
 				property,
 				locationNode,
 			)
-			let node = fromType(propertyType, locationNode, checker)
+
+			let node = fromTypeInternal(propertyType, locationNode, checker, definitions)
+
 			if (hasSymbolFlag(property, ts.SymbolFlags.Optional)) {
 				node = optional(node)
 			}
@@ -235,6 +287,7 @@ export const fromType = (
 			callSignatures,
 			locationNode,
 			checker,
+			definitions,
 		)
 
 		if (functionNode) {
@@ -254,7 +307,9 @@ export const fromType = (
 	}
 
 	if (type.isUnion()) {
-		const unionTypes = type.types.map((unionType) => fromType(unionType, locationNode, checker)) as [
+		const unionTypes = type.types.map((unionType) =>
+			fromTypeInternal(unionType, locationNode, checker, definitions)
+		) as [
 			AnyNode,
 			...AnyNode[],
 		]
@@ -262,7 +317,10 @@ export const fromType = (
 	}
 
 	if (type.isIntersection()) {
-		const intersectionTypes = type.types.map((type) => fromType(type, locationNode, checker)) as [AnyNode, ...AnyNode[]]
+		const intersectionTypes = type.types.map((type) => fromTypeInternal(type, locationNode, checker, definitions)) as [
+			AnyNode,
+			...AnyNode[],
+		]
 		return intersection(intersectionTypes)
 	}
 

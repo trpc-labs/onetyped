@@ -8,6 +8,7 @@ import {
 	AnySetNode,
 	AnyTupleNode,
 	AnyUnionNode,
+	DefinitionReferenceNode,
 } from './complex'
 import {
 	AnyLiteralNode,
@@ -69,6 +70,7 @@ export type AnyNode =
 	| AnyUnionNode
 	| AnyTupleNode
 	| AnyIntersectionNode
+	| DefinitionReferenceNode
 
 export type InferNodeArray<
 	TNodes extends AnyBaseNode[],

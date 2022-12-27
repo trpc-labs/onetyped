@@ -162,3 +162,14 @@ export const intersection = <TNode extends AnyBaseNode, TNodes extends AnyBaseNo
 		types: nodes,
 	})
 }
+
+export interface DefinitionReferenceNode extends BaseNode<'definitionReference'> {
+	readonly _type: unknown
+	identifier: string
+}
+export const definitionReference = (identifier: string): DefinitionReferenceNode => {
+	return defineNode({
+		typeName: 'definitionReference',
+		identifier,
+	})
+}

@@ -41,7 +41,7 @@
 	"sideEffects": false,
 	"devDependencies": {
 		"@onetyped/core": "workspace:*",
-		"@ts-morph/bootstrap": "0.18.0"
+		"superjson": "1.12.1"
 	},
 	"peerDependencies": {
 		"@onetyped/core": "*",
