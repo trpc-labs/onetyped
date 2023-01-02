@@ -34,8 +34,8 @@ test('toZodSchema', () => {
 		name: string(),
 	})
 
-	const zodSchema = toZodSchema(personSchema)
+	const schema = toZodSchema(personSchema)
 
-	expect(() => zodSchema.parse({ name: 'John' })).not.toThrow()
-	expect(() => zodSchema.parse({ author: 'John' })).toThrow()
+	expect(() => schema.parse({ name: 'John' })).not.toThrow()
+	expect(() => schema.parse({ author: 'John' })).toThrow()
 })

@@ -12,6 +12,9 @@ export const printNode = (node: ts.Node, printerOptions?: ts.PrinterOptions) => 
 
 export const toTypeNode = <TNode extends AnyNode>(node: TNode): ts.TypeNode => {
 	switch (node.typeName) {
+		case 'definitionReference': {
+			return f.createTypeReferenceNode(node.identifier)
+		}
 		case 'string': {
 			return f.createKeywordTypeNode(ts.SyntaxKind.StringKeyword)
 		}

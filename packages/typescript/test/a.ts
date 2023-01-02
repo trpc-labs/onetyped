@@ -4,13 +4,13 @@ import superjson from 'superjson'
 import ts from 'typescript'
 import { fromType } from '../src'
 
-const testFromType = (type: string) => {
+export const testFromType = (type: string) => {
 	const filename = 'test.ts'
 
 	const sourceFile = ts.createSourceFile(
 		filename,
 		`
-type User = { id: string, friends: User[] };
+interface User { id: string, friends: User[] };
 type T = ${type};
 `,
 		ts.ScriptTarget.Latest,
@@ -71,12 +71,12 @@ const node = testFromType(`{
   name: string,
   age: number,
 	users: User[],
-	obj: Record<string, number>,
+	obj: Record<string, number>
 }`)
 
 // console.log(node)
 const entries = node.definitions.entries()
 // entries.next()
-console.log(JSON.stringify(superjson.serialize(node), null, 2))
-console.log(superjson.parse(superjson.stringify(node)))
+// console.log(JSON.stringify(superjson.serialize(node), null, 2))
+// console.log(superjson.parse(superjson.stringify(node)))
 export {}

@@ -1,14 +1,16 @@
 import { number, object, record, string, union } from '@onetyped/core'
+import fs from 'node:fs'
+import path from 'node:path'
 import ts from 'typescript'
 import { expect, test } from 'vitest'
 import { fromType, printNode, toTypeNode } from '../src'
 
-const testFromType = (type: string) => {
+export const testFromType = (type: string) => {
 	const filename = 'test.ts'
 
 	const sourceFile = ts.createSourceFile(
 		filename,
-		`type T = ${type}`,
+		`type T = ${type};`,
 		ts.ScriptTarget.Latest,
 	)
 
@@ -16,6 +18,22 @@ const testFromType = (type: string) => {
 
 	const customCompilerHost: ts.CompilerHost = {
 		getSourceFile: (name, languageVersion) => {
+			if (name === 'test.ts') {
+				return sourceFile
+			}
+
+			if (name === 'lib.d.ts') {
+				const tsLibraryPath = path.join('node_modules', 'typescript', 'lib', 'lib.d.ts')
+				const code = fs.readFileSync(tsLibraryPath, 'utf8')
+				return ts.createSourceFile(name, code, languageVersion)
+			}
+
+			if (name === 'node_modules/@typescript/lib-es5.ts') {
+				const tsLibraryPath = path.join('node_modules', 'typescript', 'lib', 'lib.es5.d.ts')
+				const code = fs.readFileSync(tsLibraryPath, 'utf8')
+				return ts.createSourceFile(name, code, languageVersion)
+			}
+
 			return name === filename ? sourceFile : defaultCompilerHost.getSourceFile(
 				name,
 				languageVersion,
@@ -36,9 +54,11 @@ const testFromType = (type: string) => {
 	const program = ts.createProgram([filename], {}, customCompilerHost)
 	const typeChecker = program.getTypeChecker()
 
-	const typeAlias = sourceFile.statements.find((statement) =>
+	const typeAlias = sourceFile.statements.find((statement): statement is ts.TypeAliasDeclaration =>
 		ts.isTypeAliasDeclaration(statement) && statement.name.text === 'T'
-	) as ts.TypeAliasDeclaration
+	)
+
+	if (!typeAlias) throw new Error('Type alias not found')
 
 	const testType = typeChecker.getTypeAtLocation(typeAlias)
 
@@ -46,7 +66,7 @@ const testFromType = (type: string) => {
 }
 
 test('fromType', async () => {
-	const node = await testFromType(`{
+	const node = testFromType(`{
     name: string & { length: number }
     age?: number
     func: (a: number, b: string) => string
@@ -175,34 +195,37 @@ test('fromType', async () => {
 	`)
 })
 
-test('fromType record', async () => {
-	const node = await testFromType(`{ name:string } & Record<string, string>`)
+test.only('fromType record', async () => {
+	const node = testFromType(`{ name: string } & Record<string, string>`)
 
 	expect(node).toMatchInlineSnapshot(`
 		{
-		  "typeName": "intersection",
-		  "types": [
-		    {
-		      "shape": {
-		        "name": {
+		  "definitions": Map {},
+		  "node": {
+		    "typeName": "intersection",
+		    "types": [
+		      {
+		        "shape": {
+		          "name": {
+		            "type": "string",
+		            "typeName": "string",
+		          },
+		        },
+		        "typeName": "object",
+		      },
+		      {
+		        "key": {
+		          "type": "string",
+		          "typeName": "string",
+		        },
+		        "typeName": "record",
+		        "value": {
 		          "type": "string",
 		          "typeName": "string",
 		        },
 		      },
-		      "typeName": "object",
-		    },
-		    {
-		      "key": {
-		        "type": "string",
-		        "typeName": "string",
-		      },
-		      "typeName": "record",
-		      "value": {
-		        "type": "string",
-		        "typeName": "string",
-		      },
-		    },
-		  ],
+		    ],
+		  },
 		}
 	`)
 })
@@ -224,7 +247,7 @@ test('toTypeNode', () => {
 })
 
 test('fromType literal', async () => {
-	const node = await testFromType(`{
+	const node = testFromType(`{
 		literal_true: true,
 		literal_false: false,
 		literal_void: void,
@@ -252,10 +275,32 @@ test('fromType literal', async () => {
 })
 
 test('recursive', async () => {
-	const node = await testFromType(`{
+	const node = testFromType(`{
 		name: string,
     age: T,
   }`)
 
-	expect(node).toMatchInlineSnapshot()
+	expect(node).toMatchInlineSnapshot(`
+		{
+		  "definitions": Map {
+		    "type_84" => {
+		      "shape": {
+		        "age": {
+		          "identifier": "type_84",
+		          "typeName": "definitionReference",
+		        },
+		        "name": {
+		          "type": "string",
+		          "typeName": "string",
+		        },
+		      },
+		      "typeName": "object",
+		    },
+		  },
+		  "node": {
+		    "identifier": "type_84",
+		    "typeName": "definitionReference",
+		  },
+		}
+	`)
 })

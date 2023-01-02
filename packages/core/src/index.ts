@@ -1,5 +1,6 @@
 export * from './complex'
 export * from './composed'
+export * from './definitions'
 export * from './primitive'
 export * from './utils'
 

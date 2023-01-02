@@ -7,6 +7,7 @@ import {
 	bigint,
 	boolean,
 	date,
+	DefinitionMap,
 	definitionReference,
 	func,
 	intersection,
@@ -29,7 +30,7 @@ import {
 } from '@onetyped/core'
 import ts from 'typescript'
 
-type DefinitionMap = Map<string, AnyNode>
+type TypeWithMustResolve = ts.Type & { _mustResolve: boolean }
 
 const hasFlag = (type: ts.Type, flag: ts.TypeFlags): boolean => {
 	return (type.flags & flag) === flag
@@ -43,11 +44,22 @@ const hasObjectFlag = (type: ts.ObjectType, flag: ts.ObjectFlags): boolean => {
 	return (type.objectFlags & flag) === flag
 }
 
-const hashSymbolAndArguments = (symbol: ts.Symbol, arguments_: readonly ts.Type[], checker: ts.TypeChecker) => {
-	const symbolString = checker.symbolToString(symbol)
-	const typeArgumentStrings = arguments_.map((argument) => checker.typeToString(argument))
+const getStringHash = (string_: string) => {
+	let hash = 0
+	for (let index = 0, length = string_.length; index < length; index++) {
+		// eslint-disable-next-line unicorn/prefer-code-point
+		const chr = string_.charCodeAt(index)
+		hash = (hash << 5) - hash + chr
+		hash = Math.trunc(hash)
+	}
+	return hash >>> 0
+}
 
-	return [symbolString, ...typeArgumentStrings].join('_')
+const hashSymbolAndArguments = (type: ts.Type, checker: ts.TypeChecker) => {
+	const typeString = checker.typeToString(type)
+	const hash = getStringHash(typeString)
+
+	return `type_${hash}`
 }
 
 const getNodeFromCallSignatures = (
@@ -88,40 +100,41 @@ export const fromType = (
 	return { node: fromTypeInternal(type, locationNode, checker, definitions), definitions }
 }
 
+export const createOrReferenceSymbolDefinition = (
+	symbol: ts.Symbol,
+	type: ts.Type,
+	checker: ts.TypeChecker,
+	locationNode: ts.Node,
+	definitions: DefinitionMap,
+) => {
+	const hash = hashSymbolAndArguments(type, checker)
+	const symbolNode = definitions.get(hash)
+
+	if (symbolNode) {
+		return definitionReference(hash)
+	}
+
+	definitions.set(hash, unknown())
+
+	// clone type
+	const newType: TypeWithMustResolve = Object.assign(Object.create(Object.getPrototypeOf(type)), type)
+
+	newType._mustResolve = true
+
+	definitions.set(
+		hash,
+		fromTypeInternal(newType, locationNode, checker, definitions),
+	)
+
+	return definitionReference(hash)
+}
+
 export const fromTypeInternal = (
 	type: ts.Type,
 	locationNode: ts.Node,
 	checker: ts.TypeChecker,
 	definitions: DefinitionMap,
 ): AnyNode => {
-	const aliasSymbol = type.aliasSymbol
-
-	if (aliasSymbol && !(type as unknown as { _mustResolve: boolean })._mustResolve) {
-		const hash = hashSymbolAndArguments(aliasSymbol, type.aliasTypeArguments ?? [], checker)
-		console.log(hash)
-		const symbolNode = definitions.get(hash)
-
-		if (symbolNode) {
-			return definitionReference(hash)
-		}
-
-		// const symbolId = (symbol as unknown as { id: number }).id
-		// set to unknown initially so we don't get stuck in a loop
-		definitions.set(hash, unknown())
-
-		// clone type
-		const newType = Object.assign(Object.create(Object.getPrototypeOf(type)), type)
-
-		newType._mustResolve = true
-
-		definitions.set(
-			hash,
-			fromTypeInternal(newType, locationNode, checker, definitions),
-		)
-
-		return definitionReference(hash)
-	}
-
 	if (hasFlag(type, ts.TypeFlags.String)) {
 		return string()
 	}
@@ -210,6 +223,35 @@ export const fromTypeInternal = (
 					fromTypeInternal(typeArguments[1], locationNode, checker, definitions),
 				)
 			}
+		}
+
+		const aliasSymbol = type.aliasSymbol
+		const aliasTypeArguments = type.aliasTypeArguments
+		if (aliasSymbol?.escapedName === 'Record' && aliasTypeArguments?.length === 2) {
+			return record(
+				fromTypeInternal(aliasTypeArguments[0], locationNode, checker, definitions) as AnyRecordKeyNode,
+				fromTypeInternal(aliasTypeArguments[1], locationNode, checker, definitions),
+			)
+		}
+
+		if (aliasSymbol && !(type as TypeWithMustResolve)._mustResolve) {
+			return createOrReferenceSymbolDefinition(
+				aliasSymbol,
+				type,
+				checker,
+				locationNode,
+				definitions,
+			)
+		}
+
+		if (symbol.name !== '__type' && !(type as TypeWithMustResolve)._mustResolve) {
+			return createOrReferenceSymbolDefinition(
+				symbol,
+				type,
+				checker,
+				locationNode,
+				definitions,
+			)
 		}
 	}
 

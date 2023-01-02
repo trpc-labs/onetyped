@@ -4,6 +4,9 @@ const createZodMethod = (method: string, argument_?: string) => `z.${method}(${a
 
 export const toZodString = (node: AnyNode): string => {
 	switch (node.typeName) {
+		case 'definitionReference': {
+			return createZodMethod('lazy', `() => ${node.identifier}`)
+		}
 		case 'string': {
 			return createZodMethod('string')
 		}

@@ -5,6 +5,9 @@ const createTypeBoxMethod = (method: string, argument_?: string) => `Type.${meth
 
 export const toTypeBoxString = (node: AnyNode): string => {
 	switch (node.typeName) {
+		case 'definitionReference': {
+			throw new UnsupportedError('TypeBox', 'recurisve/definition reference')
+		}
 		case 'string': {
 			return createTypeBoxMethod('String')
 		}
