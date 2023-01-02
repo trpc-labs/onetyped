@@ -1,5 +1,11 @@
 # @onetyped/core
 
+## 0.0.5
+
+### Patch Changes
+
+- b66e1da: better formatting for definition references
+
 ## 0.0.4
 
 ### Patch Changes
