@@ -55,13 +55,6 @@ const getStringHash = (string_: string) => {
 	return hash >>> 0
 }
 
-const hashSymbolAndArguments = (type: ts.Type, checker: ts.TypeChecker) => {
-	const typeString = checker.typeToString(type)
-	const hash = getStringHash(typeString)
-
-	return `type_${hash}`
-}
-
 const getNodeFromCallSignatures = (
 	callSignatures: readonly ts.Signature[],
 	locationNode: ts.Node,
@@ -107,11 +100,14 @@ export const createOrReferenceSymbolDefinition = (
 	locationNode: ts.Node,
 	definitions: DefinitionMap,
 ) => {
-	const hash = hashSymbolAndArguments(type, checker)
+	const typeString = checker.typeToString(type)
+	const typeStringHash = getStringHash(typeString)
+	const hash = `type_${typeStringHash}`
+
 	const symbolNode = definitions.get(hash)
 
 	if (symbolNode) {
-		return definitionReference(hash)
+		return definitionReference(hash, typeString)
 	}
 
 	definitions.set(hash, unknown())
@@ -126,7 +122,7 @@ export const createOrReferenceSymbolDefinition = (
 		fromTypeInternal(newType, locationNode, checker, definitions),
 	)
 
-	return definitionReference(hash)
+	return definitionReference(hash, typeString)
 }
 
 export const fromTypeInternal = (
