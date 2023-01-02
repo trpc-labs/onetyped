@@ -80,106 +80,15 @@ test('fromType', async () => {
 
 	expect(node).toMatchInlineSnapshot(`
 		{
-		  "shape": {
-		    "age": {
-		      "typeName": "union",
-		      "types": [
-		        {
-		          "type": "number",
-		          "typeName": "number",
-		        },
-		        {
-		          "type": "undefined",
-		          "typeName": "undefined",
-		        },
-		      ],
-		    },
-		    "d": {
-		      "arguments": [
-		        {
-		          "type": "number",
-		          "typeName": "number",
-		        },
-		        {
-		          "type": "string",
-		          "typeName": "string",
-		        },
-		      ],
-		      "return": {
-		        "type": "string",
-		        "typeName": "string",
-		      },
-		      "typeName": "function",
-		    },
-		    "func": {
-		      "arguments": [
-		        {
-		          "type": "number",
-		          "typeName": "number",
-		        },
-		        {
-		          "type": "string",
-		          "typeName": "string",
-		        },
-		      ],
-		      "return": {
-		        "type": "string",
-		        "typeName": "string",
-		      },
-		      "typeName": "function",
-		    },
-		    "literal_string": {
-		      "type": "literal_string",
-		      "typeName": "literal",
-		    },
-		    "name": {
-		      "typeName": "intersection",
-		      "types": [
-		        {
-		          "type": "string",
-		          "typeName": "string",
-		        },
-		        {
-		          "shape": {
-		            "length": {
-		              "type": "number",
-		              "typeName": "number",
-		            },
-		          },
-		          "typeName": "object",
-		        },
-		      ],
-		    },
-		    "role": {
-		      "typeName": "union",
-		      "types": [
-		        {
-		          "type": "admin",
-		          "typeName": "literal",
-		        },
-		        {
-		          "type": "user",
-		          "typeName": "literal",
-		        },
-		      ],
-		    },
-		    "t": {
-		      "typeName": "tuple",
-		      "types": [
-		        {
-		          "type": "string",
-		          "typeName": "string",
-		        },
-		        {
-		          "type": "number",
-		          "typeName": "number",
-		        },
-		        {
+		  "definitions": Map {
+		    "type_84" => {
+		      "shape": {
+		        "age": {
 		          "typeName": "union",
 		          "types": [
 		            {
-		              "type": "boolean",
-		              "typeName": "boolean",
+		              "type": "number",
+		              "typeName": "number",
 		            },
 		            {
 		              "type": "undefined",
@@ -187,15 +96,114 @@ test('fromType', async () => {
 		            },
 		          ],
 		        },
-		      ],
+		        "d": {
+		          "arguments": [
+		            {
+		              "type": "number",
+		              "typeName": "number",
+		            },
+		            {
+		              "type": "string",
+		              "typeName": "string",
+		            },
+		          ],
+		          "return": {
+		            "type": "string",
+		            "typeName": "string",
+		          },
+		          "typeName": "function",
+		        },
+		        "func": {
+		          "arguments": [
+		            {
+		              "type": "number",
+		              "typeName": "number",
+		            },
+		            {
+		              "type": "string",
+		              "typeName": "string",
+		            },
+		          ],
+		          "return": {
+		            "type": "string",
+		            "typeName": "string",
+		          },
+		          "typeName": "function",
+		        },
+		        "literal_string": {
+		          "type": "literal_string",
+		          "typeName": "literal",
+		        },
+		        "name": {
+		          "typeName": "intersection",
+		          "types": [
+		            {
+		              "type": "string",
+		              "typeName": "string",
+		            },
+		            {
+		              "shape": {
+		                "length": {
+		                  "type": "number",
+		                  "typeName": "number",
+		                },
+		              },
+		              "typeName": "object",
+		            },
+		          ],
+		        },
+		        "role": {
+		          "typeName": "union",
+		          "types": [
+		            {
+		              "type": "admin",
+		              "typeName": "literal",
+		            },
+		            {
+		              "type": "user",
+		              "typeName": "literal",
+		            },
+		          ],
+		        },
+		        "t": {
+		          "typeName": "tuple",
+		          "types": [
+		            {
+		              "type": "string",
+		              "typeName": "string",
+		            },
+		            {
+		              "type": "number",
+		              "typeName": "number",
+		            },
+		            {
+		              "typeName": "union",
+		              "types": [
+		                {
+		                  "type": "boolean",
+		                  "typeName": "boolean",
+		                },
+		                {
+		                  "type": "undefined",
+		                  "typeName": "undefined",
+		                },
+		              ],
+		            },
+		          ],
+		        },
+		      },
+		      "typeName": "object",
 		    },
 		  },
-		  "typeName": "object",
+		  "node": {
+		    "identifier": "type_84",
+		    "typeName": "definitionReference",
+		  },
 		}
 	`)
 })
 
-test.only('fromType record', async () => {
+test('fromType record', async () => {
 	const node = testFromType(`{ name: string } & Record<string, string>`)
 
 	expect(node).toMatchInlineSnapshot(`
@@ -255,21 +263,29 @@ test('fromType literal', async () => {
 
 	expect(node).toMatchInlineSnapshot(`
 		{
-		  "shape": {
-		    "literal_false": {
-		      "type": false,
-		      "typeName": "literal",
-		    },
-		    "literal_true": {
-		      "type": true,
-		      "typeName": "literal",
-		    },
-		    "literal_void": {
-		      "type": "void",
-		      "typeName": "void",
+		  "definitions": Map {
+		    "type_84" => {
+		      "shape": {
+		        "literal_false": {
+		          "type": false,
+		          "typeName": "literal",
+		        },
+		        "literal_true": {
+		          "type": true,
+		          "typeName": "literal",
+		        },
+		        "literal_void": {
+		          "type": "void",
+		          "typeName": "void",
+		        },
+		      },
+		      "typeName": "object",
 		    },
 		  },
-		  "typeName": "object",
+		  "node": {
+		    "identifier": "type_84",
+		    "typeName": "definitionReference",
+		  },
 		}
 	`)
 })
