@@ -1,6 +1,6 @@
 {
 	"name": "@onetyped/zod",
-	"version": "0.0.4",
+	"version": "0.0.5",
 	"type": "module",
 	"description": "onetyped Zod integration",
 	"publishConfig": {

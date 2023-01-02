@@ -1,5 +1,11 @@
 # @onetyped/core
 
+## 0.0.4
+
+### Patch Changes
+
+- support recursive types
+
 ## 0.0.3
 
 ### Patch Changes
