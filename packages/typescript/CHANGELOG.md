@@ -1,5 +1,11 @@
 # @onetyped/typescript
 
+## 0.0.10
+
+### Patch Changes
+
+- 7dfe59f: fix equality check
+
 ## 0.0.9
 
 ### Patch Changes
