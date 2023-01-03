@@ -238,7 +238,7 @@ export const fromTypeInternal = (
 			)
 		}
 
-		if (symbol.name !== '__type' && symbol.name === '__object' && !(type as TypeWithMustResolve)._mustResolve) {
+		if (symbol.name !== '__type' && symbol.name !== '__object' && !(type as TypeWithMustResolve)._mustResolve) {
 			return createOrReferenceSymbolDefinition(
 				type,
 				checker,
