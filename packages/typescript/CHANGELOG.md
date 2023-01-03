@@ -1,5 +1,11 @@
 # @onetyped/typescript
 
+## 0.0.9
+
+### Patch Changes
+
+- resolve \_\_object symbol types
+
 ## 0.0.8
 
 ### Patch Changes
