@@ -94,7 +94,6 @@ export const fromType = (
 }
 
 export const createOrReferenceSymbolDefinition = (
-	symbol: ts.Symbol,
 	type: ts.Type,
 	checker: ts.TypeChecker,
 	locationNode: ts.Node,
@@ -232,7 +231,6 @@ export const fromTypeInternal = (
 
 		if (aliasSymbol && !(type as TypeWithMustResolve)._mustResolve) {
 			return createOrReferenceSymbolDefinition(
-				aliasSymbol,
 				type,
 				checker,
 				locationNode,
@@ -240,9 +238,8 @@ export const fromTypeInternal = (
 			)
 		}
 
-		if (symbol.name !== '__type' && !(type as TypeWithMustResolve)._mustResolve) {
+		if (symbol.name !== '__type' && symbol.name === '__object' && !(type as TypeWithMustResolve)._mustResolve) {
 			return createOrReferenceSymbolDefinition(
-				symbol,
 				type,
 				checker,
 				locationNode,

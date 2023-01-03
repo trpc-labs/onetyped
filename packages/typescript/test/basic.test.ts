@@ -197,6 +197,7 @@ test('fromType', async () => {
 		  },
 		  "node": {
 		    "identifier": "type_84",
+		    "text": "T",
 		    "typeName": "definitionReference",
 		  },
 		}
@@ -284,6 +285,7 @@ test('fromType literal', async () => {
 		  },
 		  "node": {
 		    "identifier": "type_84",
+		    "text": "T",
 		    "typeName": "definitionReference",
 		  },
 		}
@@ -303,6 +305,7 @@ test('recursive', async () => {
 		      "shape": {
 		        "age": {
 		          "identifier": "type_84",
+		          "text": "T",
 		          "typeName": "definitionReference",
 		        },
 		        "name": {
@@ -315,6 +318,7 @@ test('recursive', async () => {
 		  },
 		  "node": {
 		    "identifier": "type_84",
+		    "text": "T",
 		    "typeName": "definitionReference",
 		  },
 		}
