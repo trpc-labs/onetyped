@@ -1,5 +1,11 @@
 # @onetyped/typescript
 
+## 0.0.11
+
+### Patch Changes
+
+- 9ce2f05: better hash algorithm for typescript
+
 ## 0.0.10
 
 ### Patch Changes
