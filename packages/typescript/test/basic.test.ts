@@ -10,7 +10,7 @@ export const testFromType = (type: string) => {
 
 	const sourceFile = ts.createSourceFile(
 		filename,
-		`type T = ${type};`,
+		`type User = { name: string }; type T = ${type};`,
 		ts.ScriptTarget.Latest,
 	)
 
@@ -81,7 +81,7 @@ test('fromType', async () => {
 	expect(node).toMatchInlineSnapshot(`
 		{
 		  "definitions": Map {
-		    "type_84" => {
+		    "type_1060505820" => {
 		      "shape": {
 		        "age": {
 		          "typeName": "union",
@@ -196,7 +196,7 @@ test('fromType', async () => {
 		    },
 		  },
 		  "node": {
-		    "identifier": "type_84",
+		    "identifier": "type_1060505820",
 		    "text": "T",
 		    "typeName": "definitionReference",
 		  },
@@ -265,7 +265,7 @@ test('fromType literal', async () => {
 	expect(node).toMatchInlineSnapshot(`
 		{
 		  "definitions": Map {
-		    "type_84" => {
+		    "type_1060505820" => {
 		      "shape": {
 		        "literal_false": {
 		          "type": false,
@@ -284,7 +284,44 @@ test('fromType literal', async () => {
 		    },
 		  },
 		  "node": {
-		    "identifier": "type_84",
+		    "identifier": "type_1060505820",
+		    "text": "T",
+		    "typeName": "definitionReference",
+		  },
+		}
+	`)
+})
+
+test('recursive', async () => {
+	const node = testFromType(`{
+		user: User
+  }`)
+
+	expect(node).toMatchInlineSnapshot(`
+		{
+		  "definitions": Map {
+		    "type_1060505820" => {
+		      "shape": {
+		        "user": {
+		          "identifier": "type_63433467",
+		          "text": "User",
+		          "typeName": "definitionReference",
+		        },
+		      },
+		      "typeName": "object",
+		    },
+		    "type_63433467" => {
+		      "shape": {
+		        "name": {
+		          "type": "string",
+		          "typeName": "string",
+		        },
+		      },
+		      "typeName": "object",
+		    },
+		  },
+		  "node": {
+		    "identifier": "type_1060505820",
 		    "text": "T",
 		    "typeName": "definitionReference",
 		  },
@@ -301,10 +338,10 @@ test('recursive', async () => {
 	expect(node).toMatchInlineSnapshot(`
 		{
 		  "definitions": Map {
-		    "type_84" => {
+		    "type_1060505820" => {
 		      "shape": {
 		        "age": {
-		          "identifier": "type_84",
+		          "identifier": "type_1060505820",
 		          "text": "T",
 		          "typeName": "definitionReference",
 		        },
@@ -317,7 +354,7 @@ test('recursive', async () => {
 		    },
 		  },
 		  "node": {
-		    "identifier": "type_84",
+		    "identifier": "type_1060505820",
 		    "text": "T",
 		    "typeName": "definitionReference",
 		  },

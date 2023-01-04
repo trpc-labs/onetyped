@@ -95,13 +95,18 @@ export const fromType = (
 
 export const createOrReferenceSymbolDefinition = (
 	type: ts.Type,
+	typeArguments: readonly ts.Type[],
 	checker: ts.TypeChecker,
 	locationNode: ts.Node,
 	definitions: DefinitionMap,
 ) => {
+	const idObjectHash = JSON.stringify({
+		id: (type as ts.Type & { id: number }).id,
+		typeArgIds: typeArguments.map((typeArgument) => (typeArgument as ts.Type & { id: number }).id),
+	})
+	const hash = `type_${getStringHash(idObjectHash)}`
+
 	const typeString = checker.typeToString(type)
-	const typeStringHash = getStringHash(typeString)
-	const hash = `type_${typeStringHash}`
 
 	const symbolNode = definitions.get(hash)
 
@@ -232,6 +237,7 @@ export const fromTypeInternal = (
 		if (aliasSymbol && !(type as TypeWithMustResolve)._mustResolve) {
 			return createOrReferenceSymbolDefinition(
 				type,
+				aliasTypeArguments ?? [],
 				checker,
 				locationNode,
 				definitions,
@@ -241,6 +247,7 @@ export const fromTypeInternal = (
 		if (symbol.name !== '__type' && symbol.name !== '__object' && !(type as TypeWithMustResolve)._mustResolve) {
 			return createOrReferenceSymbolDefinition(
 				type,
+				checker.getTypeArguments(type as ts.TypeReference),
 				checker,
 				locationNode,
 				definitions,
