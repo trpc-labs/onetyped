@@ -14,7 +14,6 @@ test('node shape', () => {
 		{
 		  "shape": {
 		    "name": {
-		      "type": "string",
 		      "typeName": "string",
 		    },
 		  },

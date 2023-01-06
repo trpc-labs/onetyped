@@ -67,6 +67,9 @@ export const toZodSchemaInternal = <TNode extends AnyNode>(
 		case 'any': {
 			return z.any()
 		}
+		case 'never': {
+			return z.never()
+		}
 		case 'regexp': {
 			return z.instanceof(RegExp)
 		}

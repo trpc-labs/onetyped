@@ -12,7 +12,6 @@ test('fromZodSchema', () => {
 		{
 		  "shape": {
 		    "name": {
-		      "type": "string",
 		      "typeName": "string",
 		    },
 		  },

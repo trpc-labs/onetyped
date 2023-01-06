@@ -87,11 +87,9 @@ test('fromType', async () => {
 		          "typeName": "union",
 		          "types": [
 		            {
-		              "type": "number",
 		              "typeName": "number",
 		            },
 		            {
-		              "type": "undefined",
 		              "typeName": "undefined",
 		            },
 		          ],
@@ -99,16 +97,13 @@ test('fromType', async () => {
 		        "d": {
 		          "arguments": [
 		            {
-		              "type": "number",
 		              "typeName": "number",
 		            },
 		            {
-		              "type": "string",
 		              "typeName": "string",
 		            },
 		          ],
 		          "return": {
-		            "type": "string",
 		            "typeName": "string",
 		          },
 		          "typeName": "function",
@@ -116,16 +111,13 @@ test('fromType', async () => {
 		        "func": {
 		          "arguments": [
 		            {
-		              "type": "number",
 		              "typeName": "number",
 		            },
 		            {
-		              "type": "string",
 		              "typeName": "string",
 		            },
 		          ],
 		          "return": {
-		            "type": "string",
 		            "typeName": "string",
 		          },
 		          "typeName": "function",
@@ -138,13 +130,11 @@ test('fromType', async () => {
 		          "typeName": "intersection",
 		          "types": [
 		            {
-		              "type": "string",
 		              "typeName": "string",
 		            },
 		            {
 		              "shape": {
 		                "length": {
-		                  "type": "number",
 		                  "typeName": "number",
 		                },
 		              },
@@ -169,22 +159,18 @@ test('fromType', async () => {
 		          "typeName": "tuple",
 		          "types": [
 		            {
-		              "type": "string",
 		              "typeName": "string",
 		            },
 		            {
-		              "type": "number",
 		              "typeName": "number",
 		            },
 		            {
 		              "typeName": "union",
 		              "types": [
 		                {
-		                  "type": "boolean",
 		                  "typeName": "boolean",
 		                },
 		                {
-		                  "type": "undefined",
 		                  "typeName": "undefined",
 		                },
 		              ],
@@ -216,7 +202,6 @@ test('fromType record', async () => {
 		      {
 		        "shape": {
 		          "name": {
-		            "type": "string",
 		            "typeName": "string",
 		          },
 		        },
@@ -224,12 +209,10 @@ test('fromType record', async () => {
 		      },
 		      {
 		        "key": {
-		          "type": "string",
 		          "typeName": "string",
 		        },
 		        "typeName": "record",
 		        "value": {
-		          "type": "string",
 		          "typeName": "string",
 		        },
 		      },
@@ -276,7 +259,6 @@ test('fromType literal', async () => {
 		          "typeName": "literal",
 		        },
 		        "literal_void": {
-		          "type": "void",
 		          "typeName": "void",
 		        },
 		      },
@@ -313,7 +295,6 @@ test('recursive', async () => {
 		    "type_63433467" => {
 		      "shape": {
 		        "name": {
-		          "type": "string",
 		          "typeName": "string",
 		        },
 		      },
@@ -346,8 +327,33 @@ test('recursive', async () => {
 		          "typeName": "definitionReference",
 		        },
 		        "name": {
-		          "type": "string",
 		          "typeName": "string",
+		        },
+		      },
+		      "typeName": "object",
+		    },
+		  },
+		  "node": {
+		    "identifier": "type_1060505820",
+		    "text": "T",
+		    "typeName": "definitionReference",
+		  },
+		}
+	`)
+})
+
+test('never type', () => {
+	const node = testFromType(`{
+		name: never
+	}`)
+
+	expect(node).toMatchInlineSnapshot(`
+		{
+		  "definitions": Map {
+		    "type_1060505820" => {
+		      "shape": {
+		        "name": {
+		          "typeName": "never",
 		        },
 		      },
 		      "typeName": "object",

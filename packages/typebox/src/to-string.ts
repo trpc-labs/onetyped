@@ -35,6 +35,9 @@ export const toTypeBoxString = (node: AnyNode): string => {
 		case 'any': {
 			return createTypeBoxMethod('Any')
 		}
+		case 'never': {
+			return createTypeBoxMethod('Never')
+		}
 		case 'regexp': {
 			return createTypeBoxMethod('RegEx')
 		}

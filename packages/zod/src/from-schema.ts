@@ -10,6 +10,7 @@ import {
 	intersection,
 	literal,
 	map,
+	never,
 	nullable,
 	nullType,
 	number,
@@ -63,6 +64,10 @@ export const fromZodSchema = <TZodType extends z.ZodTypeAny>(schema: TZodType): 
 
 		case ZodFirstPartyTypeKind.ZodAny: {
 			return any()
+		}
+
+		case ZodFirstPartyTypeKind.ZodNever: {
+			return never()
 		}
 
 		case ZodFirstPartyTypeKind.ZodBigInt: {

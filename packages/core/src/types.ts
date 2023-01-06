@@ -16,6 +16,7 @@ import {
 	BigIntNode,
 	BooleanNode,
 	DateNode,
+	NeverNode,
 	NullNode,
 	NumberNode,
 	RegexpNode,
@@ -58,6 +59,7 @@ export type AnyNode =
 	| UnknownNode
 	| VoidNode
 	| AnyTypeNode
+	| NeverNode
 	| RegexpNode
 	| BigIntNode
 	| DateNode

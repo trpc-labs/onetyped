@@ -13,6 +13,7 @@ import {
 	intersection,
 	literal,
 	map,
+	never,
 	nullType,
 	number,
 	object,
@@ -181,6 +182,10 @@ export const fromTypeInternal = (
 
 	if (hasFlag(type, ts.TypeFlags.Any)) {
 		return any()
+	}
+
+	if (hasFlag(type, ts.TypeFlags.Never)) {
+		return never()
 	}
 
 	if (hasFlag(type, ts.TypeFlags.BigInt)) {

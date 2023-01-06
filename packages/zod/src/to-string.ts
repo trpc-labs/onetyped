@@ -34,6 +34,9 @@ export const toZodString = (node: AnyNode): string => {
 		case 'any': {
 			return createZodMethod('any')
 		}
+		case 'never': {
+			return createZodMethod('never')
+		}
 		case 'regexp': {
 			return createZodMethod('instanceof', 'RegExp')
 		}

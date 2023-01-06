@@ -60,6 +60,9 @@ export const toTypeNode = <TNode extends AnyNode>(node: TNode): ts.TypeNode => {
 		case 'any': {
 			return f.createKeywordTypeNode(ts.SyntaxKind.AnyKeyword)
 		}
+		case 'never': {
+			return f.createKeywordTypeNode(ts.SyntaxKind.NeverKeyword)
+		}
 		case 'regexp': {
 			return f.createTypeReferenceNode('RegExp', [])
 		}
