@@ -1,5 +1,13 @@
 # @onetyped/typescript
 
+## 0.0.12
+
+### Patch Changes
+
+- de4e753: support never type
+- Updated dependencies [de4e753]
+  - @onetyped/core@0.0.6
+
 ## 0.0.11
 
 ### Patch Changes

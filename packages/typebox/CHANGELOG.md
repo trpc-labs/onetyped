@@ -1,5 +1,13 @@
 # @onetyped/typebox
 
+## 0.0.5
+
+### Patch Changes
+
+- de4e753: support never type
+- Updated dependencies [de4e753]
+  - @onetyped/core@0.0.6
+
 ## 0.0.4
 
 ### Patch Changes

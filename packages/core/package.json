@@ -1,6 +1,6 @@
 {
 	"name": "@onetyped/core",
-	"version": "0.0.5",
+	"version": "0.0.6",
 	"type": "module",
 	"description": "one schema to rule them all",
 	"publishConfig": {
