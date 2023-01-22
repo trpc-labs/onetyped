@@ -41,7 +41,7 @@
 	"sideEffects": false,
 	"devDependencies": {
 		"@onetyped/core": "workspace:*",
-		"superjson": "1.12.1"
+		"superjson": "1.12.2"
 	},
 	"peerDependencies": {
 		"@onetyped/core": "*",

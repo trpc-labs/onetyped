@@ -107,6 +107,8 @@ export const createOrReferenceSymbolDefinition = (
 	})
 	const hash = `type_${getStringHash(idObjectHash)}`
 
+	console.log(hash, definitions)
+
 	const typeString = checker.typeToString(type)
 
 	const symbolNode = definitions.get(hash)

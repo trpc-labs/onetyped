@@ -41,7 +41,7 @@
 	"sideEffects": false,
 	"devDependencies": {
 		"@onetyped/core": "workspace:*",
-		"@sinclair/typebox": "0.25.8"
+		"@sinclair/typebox": "0.25.21"
 	},
 	"peerDependencies": {
 		"@onetyped/core": "*",
