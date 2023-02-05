@@ -195,28 +195,34 @@ test('fromType record', async () => {
 
 	expect(node).toMatchInlineSnapshot(`
 		{
-		  "definitions": Map {},
-		  "node": {
-		    "typeName": "intersection",
-		    "types": [
-		      {
-		        "shape": {
-		          "name": {
+		  "definitions": Map {
+		    "type_3207251008" => {
+		      "typeName": "intersection",
+		      "types": [
+		        {
+		          "shape": {
+		            "name": {
+		              "typeName": "string",
+		            },
+		          },
+		          "typeName": "object",
+		        },
+		        {
+		          "key": {
+		            "typeName": "string",
+		          },
+		          "typeName": "record",
+		          "value": {
 		            "typeName": "string",
 		          },
 		        },
-		        "typeName": "object",
-		      },
-		      {
-		        "key": {
-		          "typeName": "string",
-		        },
-		        "typeName": "record",
-		        "value": {
-		          "typeName": "string",
-		        },
-		      },
-		    ],
+		      ],
+		    },
+		  },
+		  "node": {
+		    "identifier": "type_3207251008",
+		    "text": "T",
+		    "typeName": "definitionReference",
 		  },
 		}
 	`)

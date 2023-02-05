@@ -107,8 +107,6 @@ export const createOrReferenceSymbolDefinition = (
 	})
 	const hash = `type_${getStringHash(idObjectHash)}`
 
-	console.log(hash, definitions)
-
 	const typeString = checker.typeToString(type)
 
 	const symbolNode = definitions.get(hash)
@@ -232,25 +230,6 @@ export const fromTypeInternal = (
 			}
 		}
 
-		const aliasSymbol = type.aliasSymbol
-		const aliasTypeArguments = type.aliasTypeArguments
-		if (aliasSymbol?.escapedName === 'Record' && aliasTypeArguments?.length === 2) {
-			return record(
-				fromTypeInternal(aliasTypeArguments[0], locationNode, checker, definitions) as AnyRecordKeyNode,
-				fromTypeInternal(aliasTypeArguments[1], locationNode, checker, definitions),
-			)
-		}
-
-		if (aliasSymbol && !(type as TypeWithMustResolve)._mustResolve) {
-			return createOrReferenceSymbolDefinition(
-				type,
-				aliasTypeArguments ?? [],
-				checker,
-				locationNode,
-				definitions,
-			)
-		}
-
 		if (symbol.name !== '__type' && symbol.name !== '__object' && !(type as TypeWithMustResolve)._mustResolve) {
 			return createOrReferenceSymbolDefinition(
 				type,
@@ -260,6 +239,26 @@ export const fromTypeInternal = (
 				definitions,
 			)
 		}
+	}
+
+	const aliasSymbol = type.aliasSymbol
+
+	const aliasTypeArguments = type.aliasTypeArguments
+	if (aliasSymbol?.escapedName === 'Record' && aliasTypeArguments?.length === 2) {
+		return record(
+			fromTypeInternal(aliasTypeArguments[0], locationNode, checker, definitions) as AnyRecordKeyNode,
+			fromTypeInternal(aliasTypeArguments[1], locationNode, checker, definitions),
+		)
+	}
+
+	if (aliasSymbol && !(type as TypeWithMustResolve)._mustResolve) {
+		return createOrReferenceSymbolDefinition(
+			type,
+			aliasTypeArguments ?? [],
+			checker,
+			locationNode,
+			definitions,
+		)
 	}
 
 	if (hasFlag(type, ts.TypeFlags.Object)) {
@@ -292,6 +291,7 @@ export const fromTypeInternal = (
 		const keyTypes: AnyRecordKeyNode[] = []
 		let valueType: AnyNode | undefined
 		const stringIndexType = objectType.getStringIndexType()
+
 		if (stringIndexType) {
 			keyTypes.push(string())
 			valueType = fromTypeInternal(stringIndexType, locationNode, checker, definitions)
