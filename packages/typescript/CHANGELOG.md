@@ -1,5 +1,11 @@
 # @onetyped/typescript
 
+## 0.0.13
+
+### Patch Changes
+
+- c8a5b2a: fix recursion with alias symbol
+
 ## 0.0.12
 
 ### Patch Changes
